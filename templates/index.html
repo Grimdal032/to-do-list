@@ -148,7 +148,10 @@
     </style>
     <script>
         function login() {
-                window.location.href = '/login'
+            window.location.href = '/login'
+        }
+        function logout() {
+
         }
     </script>
 </head>
@@ -156,7 +159,7 @@
     <div class="header">
         <div class="header-right">
             <button onclick="login()">로그인</button>
-<!--            <button>로그아웃</button>-->
+            <button onclick="logout()">로그아웃</button>
         </div>
         <div class="header-left">
             <h1><p><span class="header-left-title">오늘</span> 할 일을 </p><p><span class="header-left-title">내일</span>로 미루지 말자 </p></h1>
