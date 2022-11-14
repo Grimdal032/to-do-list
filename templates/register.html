@@ -21,13 +21,13 @@
             font-family: 'Gowun Dodum', sans-serif;
         }
 
-        .membership {
+        .title {
             width: 95%;
             max-width: 500px;
             margin: 20px auto 20px auto;
         }
 
-        .myjoin {
+        .section has-text-centered {
             width: 95%;
             max-width: 500px;
             margin: 20px auto 20px auto;
@@ -36,62 +36,78 @@
             padding: 20px;
         }
 
+        .input-group-text {
+            width: 100px;
+        }
+
+        .buttons {
+            width: 95%;
+            max-width: 500px;
+            margin: auto 100px auto 70px;
+
+        }
+
 
     </style>
     <script>
-        // 회원가입 함수입니다.
-        // 아이디, 비밀번호, 닉네임을 받아 DB에 저장합니다.
+
         function register() {
-                $.ajax({
-                    type: "POST",
-                    url: "/api/register",
-                    data: {
-                        id_give: $('#userid').val(),
-                        pw_give: $('#userpw').val(),
-                        nickname_give: $('#usernick').val()
-                    },
-
-                    success: function (response) {
-                        if (response['result'] == 'success') {
-                            alert('회원가입이 완료되었습니다.')
-                            window.location.href = '/login'
-                        } else {
-                            alert(response['msg'])
-                        }
+            $.ajax({
+                type: "POST",
+                url: "/api/register",
+                data: {
+                    id_give: $('#userid').val(),
+                    pw_give: $('#userpw').val(),
+                    nickname_give: $('#usernick').val()
+                },
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert('회원가입이 완료되었습니다.')
+                        window.location.href = '/login'
+                    } else {
+                        alert(response['msg'])
                     }
-                })
+                }
+            })
         }
 
-        function cancel() {
-                window.location.href = '/login'
-        }
+
     </script>
 </head>
 
 
 <body>
-<div class="membership">
-    <h1>회원가입</h1>
+
 </div>
 
-<div class="myjoin">
-    <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="userid" placeholder="url">
-        <label for="floatingInput">아이디</label>
-    </div>
+<div class="section has-text-centered">
+    <h1 class="title">회원가입 페이지</h1>
 
-        <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="userpw" placeholder="url">
-        <label for="floatingInput">비밀번호</label>
+    <div class="container">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="userid">ID</span>
+            <input id="name" type="text" class="form-control">
+            <button onclick="register()" type="button" class="btn btn-outline-secondary">중복확인</button>
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="userpw1">PW</span>
+            <input id="address" type="text" class="form-control">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="userpw2">PW check</span>
+            <input id="address" type="text" class="form-control">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text id=" usernick">Nickname</span>
+            <input id="address" type="text" class="form-control">
+            <button onclick="cancel()" type="button" class="btn btn-outline-secondary">중복확인</button>
+        </div>
     </div>
+</div>
 
-    <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="usernick" placeholder="url">
-        <label for="floatingInput">닉네임</label>
-    </div>
-
-    <button onclick="register()" type="button" class="btn btn-outline-primary">등록하기</button>
-    <button onclick="cancel()" type="button" class="btn btn-outline-primary">취소하기</button>
+<div class="buttons">
+    <button onclick="register()" type="button" class="btn btn-outline-secondary">등록하기</button>
+    <button onclick="cancel()" type="button" class="btn btn-outline-secondary">취소하기</button>
 </div>
 
 </body>
