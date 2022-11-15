@@ -54,7 +54,6 @@
         // 브라우저를 닫으면 자동 삭제되게 하거나, 일정 시간이 지나면 삭제되게 할 수 있습니다.
 
         function login() {
-                alert('hi')
                 $.ajax({
                     type: "POST",
                     url: "/api/login",
@@ -67,7 +66,6 @@
                             // 로그인이 정상적으로 되면, 토큰을 받아옵니다.
                             // 이 토큰을 mytoken이라는 키 값으로 쿠키에 저장합니다.
                             $.cookie('mytoken', response['token']);
-
                             alert('로그인 완료!')
                             window.location.href = '/'
                         } else {
