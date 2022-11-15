@@ -89,21 +89,25 @@
 
     <div class="container">
         <div class="input-group mb-3">
-            <span class="input-group-text" id="userid">ID</span>
-            <input id="name" type="text" class="form-control">
+            <span class="input-group-text">ID</span>
+            <input id="userid" type="text" class="form-control">
             <button onclick="register()" type="button" class="btn btn-outline-secondary">중복확인</button>
         </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="userpw">PW</span>
-            <input id="address" type="text" class="form-control">
+<!--        <div class="input-group mb-3">-->
+<!--            <span class="input-group-text">PW</span>-->
+<!--            <input id="userpw" type="text" class="form-control">-->
+<!--        </div>-->
+        <div class="form-floating">
+            <input type="email" class="form-control" id="floatingPassword" placeholder="Password">
+            <label for="floatingPassword"  id="userpw">PW</label>
         </div>
         <div class="input-group mb-3">
-            <span class="input-group-text" id="userpw_check">PW check</span>
-            <input id="address" type="text" class="form-control">
+            <span class="input-group-text">PW check</span>
+            <input id="userpw_check" type="text" class="form-control">
         </div>
         <div class="input-group mb-3">
-            <span class="input-group-text" id="usernick"> Nickname</span>
-            <input id="address" type="text" class="form-control">
+            <span class="input-group-text"> Nickname</span>
+            <input id="usernick" type="text" class="form-control">
             <button onclick="cancel()" type="button" class="btn btn-outline-secondary">중복확인</button>
         </div>
     </div>

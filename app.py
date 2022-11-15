@@ -1,4 +1,3 @@
-import console as console
 from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 
@@ -86,7 +85,8 @@ def api_register():
     nickname_receive = request.form['nickname_give']
 
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
-
+    print(id_receive)
+    print(pw_hash)
     db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nick': nickname_receive})
 
     return jsonify({'result': 'success'})
@@ -101,10 +101,11 @@ def api_login():
 
     # 회원가입 때와 같은 방법으로 pw를 암호화합니다.
     pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
-
+    print(pw_hash)
+    print(id_receive)
     # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
     result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
-
+    print(result)
     # 찾으면 JWT 토큰을 만들어 발급합니다.
     if result is not None:
         # JWT 토큰에는, payload와 시크릿키가 필요합니다.
@@ -113,7 +114,7 @@ def api_login():
         # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=6000)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
