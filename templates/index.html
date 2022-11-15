@@ -7,9 +7,13 @@
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
 
+
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
         body {
@@ -105,7 +109,7 @@
         }
 
         .bucket-list > p {
-            max-width: 20ch;
+            max-width: 40ch;
             margin: 0;
         }
 
@@ -136,6 +140,14 @@
             color: white
         }
 
+        .btn-danger {
+            background-color: #e75f5f;
+        }
+
+        .btn-danger:hover {
+            background-color: red;
+        }
+
         .header-left-title {
             font-size: 50px;
         }
@@ -150,8 +162,18 @@
             margin: 0 0 0 30%;
         }
 
+
+        .buckets > div > p.done {
+            text-decoration: line-through
+        }
+
+
     </style>
     <script>
+        $(document).ready(function () {
+            showList();
+        });
+
         function login() {
             window.location.href = '/login'
         }
@@ -160,6 +182,83 @@
             $.removeCookie('mytoken');
             alert('로그아웃!')
             window.location.href='/login'
+        }
+
+        function postList() {
+            let List = $('#todo-input').val();
+            let year = $('#year :selected').text();
+            let month = $('#month :selected').text();
+            // console.log(List, year, month)
+            $.ajax({
+                type: "POST",
+                url: "/bucket",
+                data: {list_give: List, year_give: year, month_give: month},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function showList() {
+            $('.buckets').empty()
+            $.ajax({
+                type: "GET",
+                url: "/bucket",
+                data: {},
+                success: function (response) {
+                    let rows = response['buckets'];
+                    for(let i = 0; i < rows.length; i++) {
+                        let bucket = rows[i]['bucket']
+                        let num = rows[i]['num']
+                        let done = rows[i]['done']
+                        let year = rows[i]['year']
+                        let month = rows[i]['month']
+                        let temp_html = ``;
+                        if (done) {
+                            temp_html = `
+                                        <div class="bucket-list">
+                                            <p class="done">🌟 ${bucket} (${year}/${month})</p>
+                                            <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
+                                        </div>`
+
+                        } else {
+                            temp_html = `
+                                        <div class="bucket-list">
+                                            <p>🌟 ${bucket} (${year}/${month})</p>
+                                            <button onclick="done_bucket(${num})" class="btn">완료</button>
+                                        </div>
+                                        `
+                        }
+
+                        $('.buckets').append(temp_html)
+                    }
+                }
+            });
+        }
+
+        function done_bucket(num) {
+            $.ajax({
+                type: "POST",
+                url: "/bucket/done",
+                data: {num_give: num},
+                success: function (response) {
+                    // alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function undone_bucket(num) {
+            $.ajax({
+                type: "POST",
+                url: "/bucket/undone",
+                data: {num_give: num},
+                success: function (response) {
+                    // alert(response["msg"])
+                    window.location.reload();
+                }
+            });
         }
     </script>
 </head>
@@ -176,16 +275,16 @@
     <div class="bucket-input">
         <div class="bucket-input-items">
             <div class="input-group input-year">
-                <select class="form-select">
+                <select id = 'year' class="form-select">
                     <option selected>년</option>
-                    <option value="1">2019</option>
-                    <option value="2">2020</option>
-                    <option value="3">2021</option>
-                    <option value="4">2022</option>
+                    <option value="1">2022</option>
+                    <option value="2">2021</option>
+                    <option value="3">2020</option>
+                    <option value="4">2019</option>
                 </select>
             </div>
             <div class="input-group input-month">
-                <select class="form-select" >
+                <select id="month" class="form-select" >
                     <option selected>월</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -201,15 +300,15 @@
                     <option value="12">12</option>
                 </select>
             </div>
-            <input placeholder="put your todo-list here"/>
-            <button class="btn">등록</button>
+            <input id="todo-input" placeholder="put your todo-list here"/>
+            <button class="btn" onclick="postList()">등록</button>
         </div>
 
     </div>
     <div class="buckets">
         <div class="bucket-list">
-            <p>🌟 your todo list</p>
-            <p>year/month</p>
+            <p>🌟 your todo list (year/month)</p>
+            <button onclick="postList()" class="btn">완료</button>
         </div>
         <div class="bucket-list">
             <p>🌟 your todo list</p>

@@ -23,8 +23,6 @@ import hashlib
 
 @app.route('/')
 def home():
-
-
     return render_template('index.html')
 
 @app.route('/login')
@@ -36,6 +34,43 @@ def login():
 @app.route('/register')
 def register():
     return render_template('register.html')
+
+
+@app.route("/bucket", methods=["POST"])
+def bucket_post():
+    list_receive = request.form['list_give']
+    year = request.form['year_give']
+    month = request.form['month_give']
+
+    bucket_list = list(db.bucket.find({}, {'_id': False}))
+    count = len(bucket_list) + 1
+
+    doc = {
+        'bucket': list_receive,
+        'year': year,
+        'month': month,
+        'num': count,
+        'done': 0,
+    }
+    db.bucket.insert_one(doc)
+    return jsonify({'msg': '등록 완료!'})
+
+@app.route("/bucket", methods=["GET"])
+def bucket_get():
+    buckets = list(db.bucket.find({}, {'_id': False}))
+    return jsonify({'buckets': buckets})
+
+@app.route("/bucket/done", methods=["POST"])
+def bucket_done():
+    num_receive = request.form['num_give']
+    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 1}})
+    return jsonify({'msg': '버킷 완료!'})
+
+@app.route("/bucket/undone", methods=["POST"])
+def bucket_undone():
+    num_receive = request.form['num_give']
+    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 0}})
+    return jsonify({'msg': '버킷 취소!'})
 
 #################################
 ##  로그인을 위한 API            ##
