@@ -108,8 +108,8 @@ def api_valid():
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
-@app.route("/bucket", methods=["POST"])
-def bucket_post():
+@app.route("/todo_post", methods=["POST"])
+def todo_post():
     list_receive = request.form['list_give']
     year = request.form['year_give']
     month = request.form['month_give']
@@ -129,24 +129,24 @@ def bucket_post():
     db.bucket.insert_one(doc)
     return jsonify({'msg': '등록 완료!'})
 
-@app.route("/bucket", methods=["GET"])
+@app.route("/todo_show", methods=["GET"])
 def bucket_get():
     buckets = list(db.bucket.find({}, {'_id': False}))
     return jsonify({'buckets': buckets})
 
-@app.route("/bucket/done", methods=["POST"])
+@app.route("/todo_done", methods=["POST"])
 def bucket_done():
     num_receive = request.form['num_give']
     db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 1}})
     return jsonify({'msg': '버킷 완료!'})
 
-@app.route("/bucket/undone", methods=["POST"])
+@app.route("/todo_undone", methods=["POST"])
 def bucket_undone():
     num_receive = request.form['num_give']
     db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 0}})
     return jsonify({'msg': '버킷 취소!'})
 
-@app.route("/bucket/delete", methods=["POST"])
+@app.route("/todo_delete", methods=["POST"])
 def bucket_delete():
     num_receive = request.form['num_give']
     print(num_receive)

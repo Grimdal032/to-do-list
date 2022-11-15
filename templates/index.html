@@ -200,7 +200,7 @@
             console.log(List, year, month)
             $.ajax({
                 type: "POST",
-                url: "/bucket",
+                url: "/todo_post",
                 data: {
                     list_give: List,
                     year_give: year,
@@ -217,7 +217,7 @@
             $('.buckets').empty()
             $.ajax({
                 type: "GET",
-                url: "/bucket",
+                url: "/todo_show",
                 data: {},
                 success: function (response) {
                     let rows = response['buckets'];
@@ -258,7 +258,7 @@
         function done_bucket(num) {
             $.ajax({
                 type: "POST",
-                url: "/bucket/done",
+                url: "/todo_done",
                 data: {num_give: num},
                 success: function (response) {
                     // alert(response["msg"])
@@ -270,7 +270,7 @@
         function undone_bucket(num) {
             $.ajax({
                 type: "POST",
-                url: "/bucket/undone",
+                url: "/todo_undone",
                 data: {num_give: num},
                 success: function (response) {
                     // alert(response["msg"])
@@ -283,7 +283,7 @@
             $('.buckets').empty()
             $.ajax({
                 type: "GET",
-                url: "/bucket",
+                url: "/todo_show",
                 data: {},
                 success: function (response) {
                     let rows = response['buckets'];
@@ -302,7 +302,7 @@
                             temp_html = `
                                         <div class="bucket-list">
                                             <div class="bucket-list-left">
-                                                    <p onclick="DeleteList(${num})">⛔</p>
+                                                    <p onclick="DeleteList(${num})" id="icon" >⛔</p>
                                                     <p class="done">🌟 ${bucket} (${year}/${month}) </p>
                                             </div>
                                             <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
@@ -312,7 +312,7 @@
                                 temp_html = `
                                             <div class="bucket-list">
                                                 <div class="bucket-list-left">
-                                                    <p onclick="DeleteList(${num})">⛔</p>
+                                                    <p onclick="DeleteList(${num})" id="icon">⛔</p>
                                                     <p>🌟 ${bucket} (${year}/${month}) </p>
                                                 </div>
                                                 <button onclick="done_bucket(${num})" class="btn">완료</button>
@@ -330,7 +330,7 @@
         function DeleteList(num) {
             $.ajax({
                 type: "POST",
-                url: "/bucket/delete",
+                url: "/todo_delete",
                 data: {
                     num_give: num,
                     },
