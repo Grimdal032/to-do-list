@@ -162,14 +162,15 @@
             font-size: 50px;
         }
 
-        .header-left h1 p:first-of-type {
-            text-align: left;
-            margin: 0 0 0 20%;
+        .header-pic > img {
+            margin: 0 auto;
+            max-width: 600px;
+            width: 100%;
         }
 
-        .header-left h1 p:nth-of-type(2) {
-            text-align: left;
-            margin: 0 0 0 30%;
+        .header-pic > p {
+            padding-top: 20px;
+            margin-bottom: 0;
         }
 
         .buckets > div > p.done {
@@ -471,11 +472,11 @@
 <body>
     <div class="header">
         <div class="header-right">
-<!--            <button onclick="login()">로그인</button>-->
             <button onclick="logout()">로그아웃</button>
         </div>
-        <div class="header-left">
-            <h1><p><span class="header-left-title">오늘</span> 할 일을 </p><p><span class="header-left-title">내일</span>로 미루지 말자 </p></h1>
+        <div class="header-pic">
+            <img src="static/pics/image1.png"/>
+            <p>{{id}} 님 안녕하세요 😊</p>
         </div>
     </div>
     <div class="bucket-input">
