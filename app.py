@@ -1,3 +1,5 @@
+from nanoid import generate
+
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 app = Flask(__name__)
 
@@ -116,7 +118,8 @@ def todo_post():
     id = request.form['id_give']
 
     bucket_list = list(db.bucket.find({}, {'_id': False}))
-    count = len(bucket_list) + 1
+    # count = len(bucket_list) + 1
+    count = generate()
 
     doc = {
         'bucket': list_receive,
@@ -130,27 +133,27 @@ def todo_post():
     return jsonify({'msg': '등록 완료!'})
 
 @app.route("/todo_show", methods=["GET"])
-def bucket_get():
+def todo_get():
     buckets = list(db.bucket.find({}, {'_id': False}))
     return jsonify({'buckets': buckets})
 
 @app.route("/todo_done", methods=["POST"])
-def bucket_done():
+def todo_done():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 1}})
+    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 1}})
     return jsonify({'msg': '버킷 완료!'})
 
 @app.route("/todo_undone", methods=["POST"])
-def bucket_undone():
+def todo_undone():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 0}})
+    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 0}})
     return jsonify({'msg': '버킷 취소!'})
 
 @app.route("/todo_delete", methods=["POST"])
 def bucket_delete():
     num_receive = request.form['num_give']
     print(num_receive)
-    db.bucket.delete_one({'num': int(num_receive)})
+    db.bucket.delete_one({'num': num_receive})
     return jsonify({'msg': '버킷 삭제!'})
 
 if __name__ == '__main__':
