@@ -22,18 +22,26 @@
         }
 
         .title {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }
 
         .section has-text-centered {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
 
             box-shadow: 0px 0px 3px 0px black;
             padding: 20px;
+        }
+
+        .register-box {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 20px auto;
         }
 
         .input-group-text {
@@ -72,6 +80,24 @@
         }
 
 
+        function idcheck() {
+
+            $.ajax({
+                type: "GET",
+                url: "/api/register",
+                data: {id_give: $('#userid').val()},
+                success: function (response) {
+                    if (response['result'] == ['fail']) {
+                        alert('중복된 아이디입니다.')
+                    } else {
+                        alert('아이디 사용이 가능합니다.')
+                        return;
+                    }
+                }
+            })
+        }
+
+
     </script>
 </head>
 
@@ -83,31 +109,34 @@
 <div class="section has-text-centered">
     <h1 class="title">회원가입 페이지</h1>
 
-    <div class="container">
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="userid">ID</span>
-            <input id="name" type="text" class="form-control">
-            <button onclick="register()" type="button" class="btn btn-outline-secondary">중복확인</button>
-        </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="userpw1">PW</span>
-            <input id="pw" type="text" class="form-control">
-        </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="userpw2">PW check</span>
-            <input id="pwcheck" type="text" class="form-control">
-        </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="usernick">Nickname</span>
-            <input id="nick" type="text" class="form-control">
-            <button onclick="cancel()" type="button" class="btn btn-outline-secondary">중복확인</button>
+
+    <div class="register-box">
+        <div class="container">
+            <div class="input-group mb-3">
+                <span class="input-group-text">ID</span>
+                <input type="text" class="form-control" id="userid">
+                <button onclick="idcheck()" type="button" class="btn btn-outline-secondary">중복확인</button>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">PW</span>
+                <input type="text" class="form-control" id="userpw">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">PW check</span>
+                <input type="text" class="form-control" id="userpw2">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Nickname</span>
+                <input type="text" class="form-control" id="usernick">
+                <button onclick="cancel()" type="button" class="btn btn-outline-secondary">중복확인</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="buttons">
-    <button onclick="register()" type="button" class="btn btn-outline-secondary">등록하기</button>
-    <button onclick="cancel()" type="button" class="btn btn-outline-secondary">취소하기</button>
+    <div class="buttons">
+        <button onclick="register()" type="button" class="btn btn-outline-secondary">등록하기</button>
+        <button onclick="history.go(-1)" type="button" class="btn btn-outline-secondary">취소하기</button>
+    </div>
 </div>
 
 </body>

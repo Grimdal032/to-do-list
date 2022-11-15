@@ -1,9 +1,11 @@
 import console as console
 from flask import Flask, render_template, request, jsonify
+
 app = Flask(__name__)
 
 from pymongo import MongoClient
-client = MongoClient('mongodb+srv://test:sparta@cluster0.q6bdrv2.mongodb.net/Cluster0?retryWrites=true&w=majority')
+
+client = MongoClient('mongodb+srv://test:sparta@cluster.vo7dmya.mongodb.net/?retryWrites=true&w=majority')
 db = client.dbsparta
 
 # JWT 토큰을 만들 때 필요한 비밀문자열입니다.
@@ -20,12 +22,10 @@ import datetime
 import hashlib
 
 
-
 @app.route('/')
 def home():
-
-
     return render_template('index.html')
+
 
 @app.route('/login')
 def login():
@@ -36,6 +36,7 @@ def login():
 @app.route('/register')
 def register():
     return render_template('register.html')
+
 
 #################################
 ##  로그인을 위한 API            ##
@@ -57,6 +58,25 @@ def api_register():
     return jsonify({'result': 'success'})
 
 
+
+
+
+
+# [중복확인 API]
+@app.route('/api/register', methods=['GET'])
+def api_idcheck():
+    id_receive = request.form['id_give']
+    result = db.user.find_one({'id': id_receive})
+    if result is not None:
+        return jsonify({'result': 'success'})
+    else:
+        return jsonify({'result': 'fail'})
+
+
+
+
+
+
 # [로그인 API]
 # id, pw를 받아서 맞춰보고, 토큰을 만들어 발급합니다.
 @app.route('/api/login', methods=['POST'])
@@ -69,7 +89,6 @@ def api_login():
 
     # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
     result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
-    print(result)
 
     # 찾으면 JWT 토큰을 만들어 발급합니다.
     if result is not None:
@@ -79,7 +98,7 @@ def api_login():
         # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=6000)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
