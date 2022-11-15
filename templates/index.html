@@ -222,6 +222,10 @@
                 success: function (response) {
                     let rows = response['buckets'];
                     let id = '{{id}}'
+                    // let monthGather = [];
+                    let count = 0;
+                    let gatherInfo = [];
+                    let gatherInfoHierarchy = [];
                     for(let i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
@@ -229,6 +233,23 @@
                         let year = rows[i]['year']
                         let month = rows[i]['month']
                         let savedId = rows[i]['id']
+
+                        if(savedId === id) {
+                            count++;
+                            gatherInfo.push({year: year, month: month, bucket: bucket, num: num, done:done, savedId:savedId})
+                        }
+                    }
+
+                    gatherInfoHierarchy = gatherInfo.sort((a,b)=>{
+                        return a.month - b.month
+                    }).reverse()
+                    for(let i = 0; i < gatherInfoHierarchy.length; i++) {
+                        let year = gatherInfoHierarchy[i]['year']
+                        let month = gatherInfoHierarchy[i]['month']
+                        let bucket = gatherInfoHierarchy[i]['bucket']
+                        let num = gatherInfoHierarchy[i]['num']
+                        let done = gatherInfoHierarchy[i]['done']
+                        let savedId = gatherInfoHierarchy[i]['savedId']
                         let temp_html = ``;
 
                         if(savedId === id) {
@@ -248,6 +269,7 @@
                                             `
                             }
                         }
+
 
                         $('.buckets').append(temp_html)
                     }
