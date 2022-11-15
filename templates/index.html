@@ -57,12 +57,12 @@
 
         .buckets {
             padding: 10px;
-            box-shadow: 0 0 5px 0px dodgerblue;
+            box-shadow: 0 0 5px 0 dodgerblue;
             border-radius: 5px;
         }
 
         .bucket-input {
-            box-shadow: 0 0 5px 0px dodgerblue;
+            box-shadow: 0 0 5px 0 dodgerblue;
             padding: 10px;
             margin: 30px 0 15px;
         }
@@ -110,19 +110,6 @@
             cursor: pointer;
         }
 
-        .input-group {
-            width: 85px;
-        }
-
-        .input-year {
-            width: 122px;
-            margin-right: 5px;
-        }
-
-        .input-month {
-            width: 100px;
-        }
-
         .btn {
             border: 0;
             width: 100px;
@@ -158,10 +145,6 @@
             display: flex;
         }
 
-        .header-left-title {
-            font-size: 50px;
-        }
-
         .header-pic > img {
             margin: 0 auto;
             max-width: 600px;
@@ -180,11 +163,14 @@
         .buckets > div > div > p.done {
             text-decoration: line-through
         }
+
+        .icon {
+            display: none;
+        }
     </style>
     <script >
         $(document).ready(function () {
             showList();
-
         });
 
         function logout() {
@@ -194,11 +180,12 @@
         }
 
         function postList() {
+            let date = new Date();
+            let day = date.getDate()
+            let year = date.getFullYear()
+            let month = date.getMonth()
             let List = $('#todo-input').val();
-            let year = $('#year :selected').text();
-            let month = $('#month :selected').text();
             let id = '{{id}}';
-            console.log(List, year, month)
             $.ajax({
                 type: "POST",
                 url: "/todo_post",
@@ -206,6 +193,7 @@
                     list_give: List,
                     year_give: year,
                     month_give: month,
+                    day_give: day,
                     id_give: id,
                 },
                 success: function (response) {
@@ -222,65 +210,129 @@
                 url: "/todo_show",
                 data: {},
                 success: function (response) {
+                    let date = new Date();
+                    let newDate = date.getDate();
+                    let newYear = date.getFullYear();
+                    let newMonth = date.getMonth() + 1;
                     let rows = response['buckets'];
                     let id = '{{id}}'
-                    // let monthGather = [];
-                    let count = 0;
-                    let gatherInfo = [];
-                    let gatherInfoHierarchy = [];
+                    let filterArray = [];
+
+                    $('.bucket-sets').empty()
+
                     for (let i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
                         let done = rows[i]['done']
                         let year = rows[i]['year']
                         let month = rows[i]['month']
+                        let day = rows[i]['day']
                         let savedId = rows[i]['id']
+                        let gatherInfo;
 
                         if (savedId === id) {
-                            count++;
-                            gatherInfo.push({
-                                year: year,
-                                month: month,
+                            gatherInfo = {
                                 bucket: bucket,
                                 num: num,
                                 done: done,
-                                savedId: savedId
-                            })
+                                year: year,
+                                month: month,
+                                day: day,
+                                id: savedId,
+                            }
+                            filterArray.push(gatherInfo)
                         }
                     }
 
-                    gatherInfoHierarchy = gatherInfo.sort((a, b) => {
-                        return a.month - b.month
-                    }).reverse()
-                    for (let i = 0; i < gatherInfoHierarchy.length; i++) {
-                        let year = gatherInfoHierarchy[i]['year']
-                        let month = gatherInfoHierarchy[i]['month']
-                        let bucket = gatherInfoHierarchy[i]['bucket']
-                        let num = gatherInfoHierarchy[i]['num']
-                        let done = gatherInfoHierarchy[i]['done']
-                        let savedId = gatherInfoHierarchy[i]['savedId']
-                        let temp_html = ``;
+                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate))
+                    console.log(filteredByDay)
+                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))
+                    if(Number(filteredByDay[0]['day']) === Number(newDate)) {
+                        let temp_html2 = `
+                                            <div style="display: flex; flex-direction: row">
+                                                <div>
+                                                    <button>별</button>
+                                                    <button>달</button>
+                                                </div>
+                                                <p>${newYear}/${newMonth}/${newDate}</p>
+                                            </div>
+                                            <div id="bucket${newDate}" class="buckets">
+                                            </div>
+                                       `
+                        $('.bucket-sets').append(temp_html2)
 
-                        if (savedId === id) {
-                            if (done) {
+                        for(let i = 0; i < filteredByDay.length; i++) {
+                        let bucket = filteredByDay[i]['bucket']
+                        let num = filteredByDay[i]['num']
+                        let done = filteredByDay[i]['done']
+                        let temp_html = ``
+                        if (done) {
                                 temp_html = `
-                                        <div class="bucket-list">
-                                            <p class="done">🌟 ${bucket} (${year}/${month}) </p>
-                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                        </div>`
+                                            <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p class="done">🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                            </div>`
 
                             } else {
                                 temp_html = `
                                             <div class="bucket-list">
-                                                <p>🌟 ${bucket} (${year}/${month}) </p>
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p>🌟 ${bucket}</p>
+                                                </div>
                                                 <button onclick="done_bucket('${num}')" class="btn">완료</button>
                                             </div>
                                             `
                             }
+                            $(`#bucket${newDate}`).append(temp_html)
+                        }
+                    }
+                    if(Number(restOfDays[0]['day']) === Number(newDate-1)) {
+                        let temp_html2 = `<div style="display: flex; flex-direction: row">
+                                            <div>
+                                                <button>별</button>
+                                                <button>달</button>
+                                            </div>
+                                            <p>${newYear}/${newMonth}/${newDate-1}</p>
+                                        </div>
+                                        <div id="bucket${newDate-1}" class="buckets">
+                                        </div>`
+                        $('.bucket-sets').append(temp_html2)
+                        for(let i = 0; i < restOfDays.length; i++) {
+                            let bucket = restOfDays[i]['bucket']
+                            let num = restOfDays[i]['num']
+                            let done = restOfDays[i]['done']
+                            let temp_html = ``
+                            if (done) {
+                                temp_html = `
+                                             <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p class="done">🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                            </div>`
+
+                            } else {
+                                temp_html = `
+                                            <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p>🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
+                                            </div>
+                                            `
+                            }
+                            $(`#bucket${newDate-1}`).append(temp_html)
                         }
 
-                        $('.buckets').append(temp_html)
                     }
+
+
                 }
             });
         }
@@ -310,74 +362,16 @@
         }
 
         function showDelete() {
-            $('.buckets').empty()
             $.ajax({
                 type: "GET",
                 url: "/todo_show",
                 data: {},
                 success: function (response) {
                     let rows = response['buckets'];
-                    let id = '{{id}}'
-                    let gatherInfo = [];
-                    let gatherInfoHierarchy = [];
                     for (let i = 0; i < rows.length; i++) {
-                        let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
-                        let done = rows[i]['done']
-                        let year = rows[i]['year']
-                        let month = rows[i]['month']
-                        let savedId = rows[i]['id']
+                        $(`#icon${num}`).show();
 
-                        if (savedId === id) {
-                            gatherInfo.push({
-                                year: year,
-                                month: month,
-                                bucket: bucket,
-                                num: num,
-                                done: done,
-                                savedId: savedId
-                            })
-                        }
-
-                    }
-                    gatherInfoHierarchy = gatherInfo.sort((a, b) => {
-                        return a.month - b.month
-                    }).reverse()
-                    for (let i = 0; i < gatherInfoHierarchy.length; i++) {
-                        let year = gatherInfoHierarchy[i]['year']
-                        let month = gatherInfoHierarchy[i]['month']
-                        let bucket = gatherInfoHierarchy[i]['bucket']
-                        let num = gatherInfoHierarchy[i]['num']
-                        let done = gatherInfoHierarchy[i]['done']
-                        let savedId = gatherInfoHierarchy[i]['savedId']
-                        let temp_html = ``;
-
-                        if (savedId === id) {
-                            if (done) {
-                                temp_html = `
-                                        <div class="bucket-list">
-                                             <div class="bucket-list-left">
-                                                     <p onclick="DeleteList('${num}')" id="icon" >⛔</p>
-                                                     <p class="done">🌟 ${bucket} (${year}/${month}) </p>
-                                             </div>
-                                             <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                         </div>`
-
-                            } else {
-                                temp_html = `
-                                            <div class="bucket-list">
-                                                <div class="bucket-list-left">
-                                                    <p onclick="DeleteList('${num}')" id="icon">⛔</p>
-                                                    <p>🌟 ${bucket} (${year}/${month}) </p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                        }
-
-
-                        $('.buckets').append(temp_html)
                     }
                 }
             });
@@ -398,71 +392,16 @@
         }
 
         function hideDelete() {
-            // $('#icon').text('')
-            $('.buckets').empty()
             $.ajax({
                 type: "GET",
                 url: "/todo_show",
                 data: {},
                 success: function (response) {
                     let rows = response['buckets'];
-                    let id = '{{id}}'
-                    // let monthGather = [];
-                    let count = 0;
-                    let gatherInfo = [];
-                    let gatherInfoHierarchy = [];
                     for (let i = 0; i < rows.length; i++) {
-                        let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
-                        let done = rows[i]['done']
-                        let year = rows[i]['year']
-                        let month = rows[i]['month']
-                        let savedId = rows[i]['id']
+                        $(`#icon${num}`).hide();
 
-                        if (savedId === id) {
-                            count++;
-                            gatherInfo.push({
-                                year: year,
-                                month: month,
-                                bucket: bucket,
-                                num: num,
-                                done: done,
-                                savedId: savedId
-                            })
-                        }
-                    }
-
-                    gatherInfoHierarchy = gatherInfo.sort((a, b) => {
-                        return a.month - b.month
-                    }).reverse()
-                    for (let i = 0; i < gatherInfoHierarchy.length; i++) {
-                        let year = gatherInfoHierarchy[i]['year']
-                        let month = gatherInfoHierarchy[i]['month']
-                        let bucket = gatherInfoHierarchy[i]['bucket']
-                        let num = gatherInfoHierarchy[i]['num']
-                        let done = gatherInfoHierarchy[i]['done']
-                        let savedId = gatherInfoHierarchy[i]['savedId']
-                        let temp_html = ``;
-
-                        if (savedId === id) {
-                            if (done) {
-                                temp_html = `
-                                        <div class="bucket-list">
-                                            <p class="done">🌟 ${bucket} (${year}/${month}) </p>
-                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                        </div>`
-
-                            } else {
-                                temp_html = `
-                                            <div class="bucket-list">
-                                                <p>🌟 ${bucket} (${year}/${month}) </p>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                        }
-
-                        $('.buckets').append(temp_html)
                     }
                 }
             });
@@ -481,32 +420,6 @@
     </div>
     <div class="bucket-input">
         <div class="bucket-input-items">
-            <div class="input-group input-year">
-                <select id = 'year' class="form-select">
-                    <option selected>년</option>
-                    <option value="1">2022</option>
-                    <option value="2">2021</option>
-                    <option value="3">2020</option>
-                    <option value="4">2019</option>
-                </select>
-            </div>
-            <div class="input-group input-month">
-                <select id="month" class="form-select" >
-                    <option selected>월</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                </select>
-            </div>
             <input id="todo-input" placeholder="put your todo-list here"/>
             <button class="btn" onclick="postList()">등록</button>
         </div>
@@ -517,20 +430,18 @@
         <button onclick="hideDelete()" class="btn btn-margin">취소</button>
     </div>
 
-    <div class="buckets">
-        <div class="bucket-list">
-            <p>🌟 your todo list (year/month)</p>
-            <button onclick="postList()" class="btn">완료</button>
+    <div class="bucket-sets">
+        <div style="display: flex; flex-direction: row">
+            <div>
+                <button>별</button>
+                <button>달</button>
+            </div>
+            <p>year/month/day</p>
         </div>
-        <div class="bucket-list">
-            <p>🌟 your todo list</p>
-            <p>year/month</p>
-        </div>
-        <div class="bucket-list">
-            <p>🌟 your todo list</p>
-            <p>year/month</p>
+        <div class="buckets">
         </div>
     </div>
+
 
 
 </body>

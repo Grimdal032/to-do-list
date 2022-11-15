@@ -120,6 +120,7 @@ def todo_post():
     list_receive = request.form['list_give']
     year = request.form['year_give']
     month = request.form['month_give']
+    day = request.form['day_give']
     id = request.form['id_give']
 
     bucket_list = list(db.bucket.find({}, {'_id': False}))
@@ -130,6 +131,7 @@ def todo_post():
         'bucket': list_receive,
         'year': year,
         'month': month,
+        'day': day,
         'num': count,
         'done': 0,
         'id': id
