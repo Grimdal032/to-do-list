@@ -88,28 +88,25 @@
     <h1 class="title">회원가입 페이지</h1>
 
     <div class="container">
-        <div class="input-group mb-3">
-            <span class="input-group-text">ID</span>
-            <input id="userid" type="text" class="form-control">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="floatingInput" placeholder="name" >
+            <label for="floatingInput" id="userid">ID</label>
             <button onclick="register()" type="button" class="btn btn-outline-secondary">중복확인</button>
         </div>
-<!--        <div class="input-group mb-3">-->
-<!--            <span class="input-group-text">PW</span>-->
-<!--            <input id="userpw" type="text" class="form-control">-->
-<!--        </div>-->
-        <div class="form-floating">
-            <input type="email" class="form-control" id="floatingPassword" placeholder="Password">
-            <label for="floatingPassword"  id="userpw">PW</label>
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <label for="floatingPassword" id="userpw">PW</label>
         </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text">PW check</span>
-            <input id="userpw_check" type="text" class="form-control">
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="floatingPasswordCheck" placeholder="Password">
+            <label for="floatingPassword" id="userpw_check">PW Check</label>
         </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text"> Nickname</span>
-            <input id="usernick" type="text" class="form-control">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="floatingNickname" placeholder="name" >
+            <label for="floatingInput" id="usernick">Nickname</label>
             <button onclick="cancel()" type="button" class="btn btn-outline-secondary">중복확인</button>
         </div>
+
     </div>
 </div>
 
