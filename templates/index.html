@@ -64,7 +64,7 @@
         .bucket-input {
             box-shadow: 0 0 5px 0px dodgerblue;
             padding: 10px;
-            margin: 30px 0;
+            margin: 30px 0 15px;
         }
 
         .bucket-input input {
@@ -141,6 +141,19 @@
             background-color: red;
         }
 
+        .btn-margin {
+            margin-bottom: 15px;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .bucket-list-left {
+            display: flex;
+        }
+
         .header-left-title {
             font-size: 50px;
         }
@@ -156,6 +169,10 @@
         }
 
         .buckets > div > p.done {
+            text-decoration: line-through
+        }
+
+        .buckets > div > div > p.done {
             text-decoration: line-through
         }
 
@@ -218,7 +235,7 @@
                             if (done) {
                             temp_html = `
                                         <div class="bucket-list">
-                                            <p class="done">🌟 ${bucket} (${year}/${month})</p>
+                                            <p class="done">🌟 ${bucket} (${year}/${month}) </p>
                                             <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
                                         </div>`
 
@@ -260,6 +277,72 @@
                     window.location.reload();
                 }
             });
+        }
+
+        function showDelete() {
+            $('.buckets').empty()
+            $.ajax({
+                type: "GET",
+                url: "/bucket",
+                data: {},
+                success: function (response) {
+                    let rows = response['buckets'];
+                    let id = '{{id}}'
+                    for(let i = 0; i < rows.length; i++) {
+                        let bucket = rows[i]['bucket']
+                        let num = rows[i]['num']
+                        let done = rows[i]['done']
+                        let year = rows[i]['year']
+                        let month = rows[i]['month']
+                        let savedId = rows[i]['id']
+                        let temp_html = ``;
+
+                        if(savedId === id) {
+                            if (done) {
+                            temp_html = `
+                                        <div class="bucket-list">
+                                            <div class="bucket-list-left">
+                                                    <p onclick="DeleteList(${num})">⛔</p>
+                                                    <p class="done">🌟 ${bucket} (${year}/${month}) </p>
+                                            </div>
+                                            <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
+                                        </div>`
+
+                            } else {
+                                temp_html = `
+                                            <div class="bucket-list">
+                                                <div class="bucket-list-left">
+                                                    <p onclick="DeleteList(${num})">⛔</p>
+                                                    <p>🌟 ${bucket} (${year}/${month}) </p>
+                                                </div>
+                                                <button onclick="done_bucket(${num})" class="btn">완료</button>
+                                            </div>
+                                            `
+                            }
+                        }
+
+                        $('.buckets').append(temp_html)
+                    }
+                }
+            });
+        }
+
+        function DeleteList(num) {
+            $.ajax({
+                type: "POST",
+                url: "/bucket/delete",
+                data: {
+                    num_give: num,
+                    },
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function hideDelete() {
+            $('#icon').text('')
         }
     </script>
 </head>
@@ -304,8 +387,13 @@
             <input id="todo-input" placeholder="put your todo-list here"/>
             <button class="btn" onclick="postList()">등록</button>
         </div>
-
     </div>
+
+    <div class="flex">
+        <button onclick="showDelete()" style="margin-right: 5px" class="btn btn-danger btn-margin">삭제</button>
+        <button onclick="hideDelete()" class="btn btn-margin">취소</button>
+    </div>
+
     <div class="buckets">
         <div class="bucket-list">
             <p>🌟 your todo list (year/month)</p>
