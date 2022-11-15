@@ -208,6 +208,24 @@
                 data: {},
                 success: function (response) {
                     let rows = response['buckets'];
+
+                    let temp_html = ''
+                    // 비로그인 시에 -> 로그인 버튼 이 나오게 하도록
+                    // 로그인 시에 -> 비로그인 버튼이 나오게 하도록 구현
+                    if(document.cookie === '') {    // 비로그인 시(쿠키 없음)
+                        temp_html = `<div class="header-right">
+                                        <button className="btn" onclick="login()">로그인</button>
+                                     </div>`
+
+                    }
+                    else {  // 로그인 시 -> 로그아웃 버튼 구현
+                        temp_html = `<div class="header-right">
+                                        <button className="btn" onclick="logout()">로그아웃</button>
+                                    </div>`
+                    }
+                    $('.header-right').append(temp_html)
+                    temp_html = ``;
+
                     for(let i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
@@ -265,8 +283,7 @@
 <body>
     <div class="header">
         <div class="header-right">
-            <button onclick="login()">로그인</button>
-            <button onclick="logout()">로그아웃</button>
+
         </div>
         <div class="header-left">
             <h1><p><span class="header-left-title">오늘</span> 할 일을 </p><p><span class="header-left-title">내일</span>로 미루지 말자 </p></h1>
