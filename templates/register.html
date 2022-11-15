@@ -13,7 +13,6 @@
             crossorigin="anonymous"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
-
     <title>회원가입</title>
 
     <style>
@@ -21,76 +20,195 @@
             font-family: 'Gowun Dodum', sans-serif;
         }
 
-        .membership {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+        .title {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }
 
-        .myjoin {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+        .section has-text-centered {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
 
             box-shadow: 0px 0px 3px 0px black;
             padding: 20px;
         }
 
+        .register-box {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 20px auto;
+        }
+
+        .input-group-text {
+            width: 100px;
+        }
+
+        .buttons {
+            width: 95%;
+            max-width: 500px;
+            margin: auto;
+
+        }
 
     </style>
     <script>
+        let verifiedName = 0;
+        let verifiedNick = 0;
+        function register() {
+            // let element = document.getElementById("")
+            // element.style.border = '1px solid black'
+            let id = $('#userid').val();
+            let pw = $('#userpw').val();
+            let pw2 = $('#userpw2').val();
+            let nick = $('#usernick').val();
+            let borderId = document.getElementById('userid')
+            borderId.style.border = '1px solid red'
+            id === '' ? borderId.style.border = '1px solid red':borderId.style.border = '1px solid #ced4da';
+            let borderPw = document.getElementById('userpw')
+            borderPw.style.border = '1px solid red'
+            pw === '' ? borderPw.style.border = '1px solid red':borderPw.style.border = '1px solid #ced4da';
+            let borderPw2 = document.getElementById('userpw2')
+            borderPw2.style.border = '1px solid red'
+            pw2 === '' ? borderPw2.style.border = '1px solid red':borderPw2.style.border = '1px solid #ced4da';
+            let borderNick = document.getElementById('usernick')
+            borderNick.style.border = '1px solid red'
+            nick === '' ? borderNick.style.border = '1px solid red':borderNick.style.border = '1px solid #ced4da';
 
-        function cancel() {
-                window.location.href = '/login'
+
+            if(id === '' || pw === '' || nick === '') {
+                alert('complete filling the form')
+            } else if(verifiedName === 0) {
+                alert('please verify your ID')
+                borderId.style.border = '1px solid red'
+            } else if (verifiedNick === 0){
+                alert('please verify your NICKNAME')
+                borderNick.style.border = '1px solid red'
+            } else if(pw !== pw2) {
+                alert('two passwords should match!')
+                borderPw.style.border = '1px solid red'
+                borderPw2.style.border = '1px solid red'
+            } else {
+                $.ajax({
+                type: "POST",
+                url: "/api/register",
+                data: {
+                    id_give: id,
+                    pw_give: pw,
+                    nickname_give: nick
+                },
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert('회원가입이 완료되었습니다.')
+                        window.location.href = '/login'
+                    } else {
+                        alert(response['msg'])
+                    }
+                }
+            })
+            }
         }
 
-        function register() {
+        function idcheck() {
             $.ajax({
-                    type: "POST",
-                    url: "/api/register",
-                    data: {
-                        id_give: $('#id').val(),
-                        pw_give: $('#pw').val(),
-                        nickname_give: $('#name').val()
-                    },
-                    success: function (response) {
-                        if (response['result'] == 'success') {
-                            alert('회원가입이 완료되었습니다.')
-                            window.location.href = '/login'
-                        } else {
-                            alert(response['msg'])
+                type: "GET",
+                url: "/api/register",
+                data: {},
+                success: function (response) {
+                    let rows = response['users'];
+                    let doubleCheck = false;
+                    for(let i = 0; i < rows.length; i++) {
+                        let userid = $('#userid').val()
+                        let id = rows[i]['id']
+                        if(userid === id) {
+                            doubleCheck = true
                         }
                     }
-                })
+                    if(doubleCheck) {
+                        alert('중복입니다')
+                        verifiedName = 0;
+                    } else {
+                        alert('사용 가능 합니다')
+                        verifiedName = 1;
+                    }
+                }
+            });
         }
+
+        function nickcheck() {
+            $.ajax({
+                type: "GET",
+                url: "/api/register",
+                data: {},
+                success: function (response) {
+                    let rows = response['users'];
+                    let doubleCheck = false;
+                    for(let i = 0; i < rows.length; i++) {
+                        let usernick = $('#usernick').val()
+                        let nick = rows[i]['nick']
+                        if(usernick === nick) {
+                            doubleCheck = true;
+                        }
+                    }
+                    if(doubleCheck) {
+                        alert('중복입니다')
+                        verifiedNick = 0;
+                    } else {
+                        alert('사용 가능 합니다')
+                        verifiedNick = 1;
+                    }
+                }
+            });
+        }
+
+
+        function cancel() {
+            window.location.href='/'
+        }
+
+
     </script>
 </head>
 
 
 <body>
-<div class="membership">
-    <h1>회원가입</h1>
+
 </div>
 
-<div class="myjoin">
-    <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="name" placeholder="url">
-        <label for="floatingInput">이름</label>
+<div class="section has-text-centered">
+    <h1 class="title">회원가입 페이지</h1>
+
+
+    <div class="register-box">
+        <div class="container">
+            <div class="input-group mb-3">
+                <span class="input-group-text">ID</span>
+                <input type="text" class="form-control" id="userid">
+                <button onclick="idcheck()" type="button" class="btn btn-outline-secondary">중복확인</button>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">PW</span>
+                <input type="text" class="form-control" id="userpw">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">PW check</span>
+                <input type="text" class="form-control" id="userpw2">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Nickname</span>
+                <input type="text" class="form-control" id="usernick">
+                <button onclick="nickcheck()" type="button" class="btn btn-outline-secondary">중복확인</button>
+            </div>
+        </div>
     </div>
 
-    <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="id" placeholder="url">
-        <label for="floatingInput">아이디</label>
+    <div class="buttons">
+        <button onclick="register()" type="button" class="btn btn-outline-secondary">등록하기</button>
+        <button onclick="cancel()" type="button" class="btn btn-outline-secondary">취소하기</button>
     </div>
-
-        <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="pw" placeholder="url">
-        <label for="floatingInput">비밀번호</label>
-    </div>
-
-
-    <button onclick="register()" type="button" class="btn btn-outline-primary">등록하기</button>
-    <button onclick="cancel()" type="button" class="btn btn-outline-primary">취소하기</button>
 </div>
 
 </body>

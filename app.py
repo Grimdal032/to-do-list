@@ -52,6 +52,11 @@ def api_register():
 
     return jsonify({'result': 'success'})
 
+@app.route('/api/register', methods=['GET'])
+def api_registerGet():
+    all_users = list(db.user.find({},{'_id':False}))
+    return jsonify({'users': all_users})
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     id_receive = request.form['id_give']
