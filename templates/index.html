@@ -17,7 +17,7 @@
             margin: 0 auto;
         }
 
-        .header{
+        .header {
             display: flex;
             flex-direction: column;
         }
@@ -175,21 +175,17 @@
         .buckets > div > div > p.done {
             text-decoration: line-through
         }
-
     </style>
-    <script>
+    <script >
         $(document).ready(function () {
             showList();
-        });
 
-        // function login() {
-        //     window.location.href = '/login'
-        // }
+        });
 
         function logout() {
             $.removeCookie('mytoken');
             alert('로그아웃!')
-            window.location.href='/login'
+            window.location.href = '/login'
         }
 
         function postList() {
@@ -205,7 +201,8 @@
                     list_give: List,
                     year_give: year,
                     month_give: month,
-                    id_give: id,},
+                    id_give: id,
+                },
                 success: function (response) {
                     alert(response["msg"])
                     window.location.reload();
@@ -226,7 +223,7 @@
                     let count = 0;
                     let gatherInfo = [];
                     let gatherInfoHierarchy = [];
-                    for(let i = 0; i < rows.length; i++) {
+                    for (let i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
                         let done = rows[i]['done']
@@ -234,16 +231,23 @@
                         let month = rows[i]['month']
                         let savedId = rows[i]['id']
 
-                        if(savedId === id) {
+                        if (savedId === id) {
                             count++;
-                            gatherInfo.push({year: year, month: month, bucket: bucket, num: num, done:done, savedId:savedId})
+                            gatherInfo.push({
+                                year: year,
+                                month: month,
+                                bucket: bucket,
+                                num: num,
+                                done: done,
+                                savedId: savedId
+                            })
                         }
                     }
 
-                    gatherInfoHierarchy = gatherInfo.sort((a,b)=>{
+                    gatherInfoHierarchy = gatherInfo.sort((a, b) => {
                         return a.month - b.month
                     }).reverse()
-                    for(let i = 0; i < gatherInfoHierarchy.length; i++) {
+                    for (let i = 0; i < gatherInfoHierarchy.length; i++) {
                         let year = gatherInfoHierarchy[i]['year']
                         let month = gatherInfoHierarchy[i]['month']
                         let bucket = gatherInfoHierarchy[i]['bucket']
@@ -252,24 +256,23 @@
                         let savedId = gatherInfoHierarchy[i]['savedId']
                         let temp_html = ``;
 
-                        if(savedId === id) {
+                        if (savedId === id) {
                             if (done) {
-                            temp_html = `
+                                temp_html = `
                                         <div class="bucket-list">
                                             <p class="done">🌟 ${bucket} (${year}/${month}) </p>
-                                            <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
+                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
                                         </div>`
 
                             } else {
                                 temp_html = `
                                             <div class="bucket-list">
                                                 <p>🌟 ${bucket} (${year}/${month}) </p>
-                                                <button onclick="done_bucket(${num})" class="btn">완료</button>
+                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
                                             </div>
                                             `
                             }
                         }
-
 
                         $('.buckets').append(temp_html)
                     }
@@ -310,38 +313,64 @@
                 success: function (response) {
                     let rows = response['buckets'];
                     let id = '{{id}}'
-                    for(let i = 0; i < rows.length; i++) {
+                    let gatherInfo = [];
+                    let gatherInfoHierarchy = [];
+                    for (let i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
                         let done = rows[i]['done']
                         let year = rows[i]['year']
                         let month = rows[i]['month']
                         let savedId = rows[i]['id']
+
+                        if (savedId === id) {
+                            gatherInfo.push({
+                                year: year,
+                                month: month,
+                                bucket: bucket,
+                                num: num,
+                                done: done,
+                                savedId: savedId
+                            })
+                        }
+
+                    }
+                    gatherInfoHierarchy = gatherInfo.sort((a, b) => {
+                        return a.month - b.month
+                    }).reverse()
+                    for (let i = 0; i < gatherInfoHierarchy.length; i++) {
+                        let year = gatherInfoHierarchy[i]['year']
+                        let month = gatherInfoHierarchy[i]['month']
+                        let bucket = gatherInfoHierarchy[i]['bucket']
+                        let num = gatherInfoHierarchy[i]['num']
+                        let done = gatherInfoHierarchy[i]['done']
+                        let savedId = gatherInfoHierarchy[i]['savedId']
                         let temp_html = ``;
 
-                        if(savedId === id) {
+                        if (savedId === id) {
                             if (done) {
-                            temp_html = `
+                                temp_html = `
                                         <div class="bucket-list">
-                                            <div class="bucket-list-left">
-                                                    <p onclick="DeleteList(${num})" id="icon" >⛔</p>
-                                                    <p class="done">🌟 ${bucket} (${year}/${month}) </p>
-                                            </div>
-                                            <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
-                                        </div>`
+                                             <div class="bucket-list-left">
+                                                     <p onclick="DeleteList('${num}')" id="icon" >⛔</p>
+                                                     <p class="done">🌟 ${bucket} (${year}/${month}) </p>
+                                             </div>
+                                             <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                         </div>`
 
                             } else {
                                 temp_html = `
                                             <div class="bucket-list">
                                                 <div class="bucket-list-left">
-                                                    <p onclick="DeleteList(${num})" id="icon">⛔</p>
+                                                    <p onclick="DeleteList('${num}')" id="icon">⛔</p>
                                                     <p>🌟 ${bucket} (${year}/${month}) </p>
                                                 </div>
-                                                <button onclick="done_bucket(${num})" class="btn">완료</button>
+                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
                                             </div>
                                             `
                             }
                         }
+
 
                         $('.buckets').append(temp_html)
                     }
@@ -355,7 +384,7 @@
                 url: "/todo_delete",
                 data: {
                     num_give: num,
-                    },
+                },
                 success: function (response) {
                     alert(response["msg"])
                     window.location.reload();
@@ -364,7 +393,74 @@
         }
 
         function hideDelete() {
-            $('#icon').text('')
+            // $('#icon').text('')
+            $('.buckets').empty()
+            $.ajax({
+                type: "GET",
+                url: "/todo_show",
+                data: {},
+                success: function (response) {
+                    let rows = response['buckets'];
+                    let id = '{{id}}'
+                    // let monthGather = [];
+                    let count = 0;
+                    let gatherInfo = [];
+                    let gatherInfoHierarchy = [];
+                    for (let i = 0; i < rows.length; i++) {
+                        let bucket = rows[i]['bucket']
+                        let num = rows[i]['num']
+                        let done = rows[i]['done']
+                        let year = rows[i]['year']
+                        let month = rows[i]['month']
+                        let savedId = rows[i]['id']
+
+                        if (savedId === id) {
+                            count++;
+                            gatherInfo.push({
+                                year: year,
+                                month: month,
+                                bucket: bucket,
+                                num: num,
+                                done: done,
+                                savedId: savedId
+                            })
+                        }
+                    }
+
+                    gatherInfoHierarchy = gatherInfo.sort((a, b) => {
+                        return a.month - b.month
+                    }).reverse()
+                    for (let i = 0; i < gatherInfoHierarchy.length; i++) {
+                        let year = gatherInfoHierarchy[i]['year']
+                        let month = gatherInfoHierarchy[i]['month']
+                        let bucket = gatherInfoHierarchy[i]['bucket']
+                        let num = gatherInfoHierarchy[i]['num']
+                        let done = gatherInfoHierarchy[i]['done']
+                        let savedId = gatherInfoHierarchy[i]['savedId']
+                        let temp_html = ``;
+
+                        if (savedId === id) {
+                            if (done) {
+                                temp_html = `
+                                        <div class="bucket-list">
+                                            <p class="done">🌟 ${bucket} (${year}/${month}) </p>
+                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                        </div>`
+
+                            } else {
+                                temp_html = `
+                                            <div class="bucket-list">
+                                                <p>🌟 ${bucket} (${year}/${month}) </p>
+                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
+                                            </div>
+                                            `
+                            }
+                        }
+
+                        $('.buckets').append(temp_html)
+                    }
+                }
+            });
         }
     </script>
 </head>
