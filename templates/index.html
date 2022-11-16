@@ -157,11 +157,13 @@
         }
 
         .buckets > div > p.done {
-            text-decoration: line-through
+            text-decoration: line-through;
+            text-decoration-color: red;
         }
 
         .buckets > div > div > p.done {
-            text-decoration: line-through
+            text-decoration: line-through;
+            text-decoration-color: red;
         }
 
         .icon {
@@ -171,12 +173,35 @@
     <script >
         $(document).ready(function () {
             showLists(); //시작하자마자 showList()함수를 실행한다.
+            credentialCheck();
         });
+
+        function credentialCheck() {
+            $('#header-right').empty()
+            $('#greet').empty()
+            if($.cookie('mytoken')) {
+                let temp_html = `<button onclick="logout()">로그아웃</button>`
+                let temp_html2 = `<p>{{nick}} 님 안녕하세요 😊</p>`
+                $('#header-right').append(temp_html)
+                $('#greet').append(temp_html2)
+            } else {
+                let temp_html = `
+                                 <button onclick="loginPage()">로그인</button>`
+                let temp_html2 = `<p>로그인 해주세요 😢</p>`
+                $('#header-right').append(temp_html)
+                $('#greet').append(temp_html2)
+            }
+        }
+
+        function loginPage() {
+            window.location.href = "/login"
+        }
+
 
         function logout() {   //쿠키에서 토큰 삭제하고 로그인 페이지로 이동
             $.removeCookie('mytoken');
             alert('로그아웃!')
-            window.location.href = '/login'
+            window.location.href = '/'
         }
 
         function postList() {  //todolist를 db로 전달한다.
@@ -430,12 +455,14 @@
 </head>
 <body>
     <div class="header">
-        <div class="header-right">
+        <div id="header-right" class="header-right">
             <button onclick="logout()">로그아웃</button>
         </div>
         <div class="header-pic">
             <img src="static/pics/image1.png"/>
-            <p>{{nick}} 님 안녕하세요 😊</p>
+            <div id="greet">
+                <p>{{nick}} 님 안녕하세요 😊</p>
+            </div>
         </div>
     </div>
     <div class="bucket-input">
