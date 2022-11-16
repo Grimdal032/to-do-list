@@ -170,16 +170,16 @@
     </style>
     <script >
         $(document).ready(function () {
-            showList();
+            showLists(); //시작하자마자 showList()함수를 실행한다.
         });
 
-        function logout() {
+        function logout() {   //쿠키에서 토큰 삭제하고 로그인 페이지로 이동
             $.removeCookie('mytoken');
             alert('로그아웃!')
             window.location.href = '/login'
         }
 
-        function postList() {
+        function postList() {  //todolist를 db로 전달한다.
             let date = new Date();
             let day = date.getDate()
             let year = date.getFullYear()
@@ -203,7 +203,7 @@
             });
         }
 
-        function showList() {
+        function showLists() {  //todolist를 db로부터 가져와 보여준다.
             $('.buckets').empty()
             $.ajax({
                 type: "GET",
@@ -215,12 +215,12 @@
                     let newYear = date.getFullYear();
                     let newMonth = date.getMonth() + 1;
                     let rows = response['buckets'];
-                    let id = '{{id}}'
+                    let id = '{{id}}' //토큰을 성공적으로 발급 받았을 때 로그인한 id값을 가져온다.
                     let filterArray = [];
 
-                    $('.bucket-sets').empty()
+                    $('.bucket-sets').empty() //bucket-sets 상자 안을 비운다.
 
-                    for (let i = 0; i < rows.length; i++) {
+                    for (let i = 0; i < rows.length; i++) {  //모든 리스트에서 정보를 얻는다.
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
                         let done = rows[i]['done']
@@ -231,7 +231,7 @@
                         let savedId = rows[i]['id']
                         let gatherInfo;
 
-                        if (savedId === id) {
+                        if (savedId === id) { //db에 저장된 아이디와 현재 접속한 아이디가 같을 때의 정보를 얻는다.
                             gatherInfo = {
                                 bucket: bucket,
                                 num: num,
@@ -242,161 +242,99 @@
                                 id: savedId,
                                 priority: priority,
                             }
-                            filterArray.push(gatherInfo)
+                            filterArray.push(gatherInfo) //얻은 정보를 filterArray에 저장한다.
                         }
                     }
 
-                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate))
-                    let pri = filteredByDay.filter(x=> x.priority === 1)
-                    let noPri = filteredByDay.filter(x=> x.priority !== 1)
-                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))
-                    let restPri = restOfDays.filter(x=> x.priority === 1)
-                    let restNoPri = restOfDays.filter(x=> x.priority !== 1)
+                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate)) //오늘 리스트를 가져온다
+                    let pri = filteredByDay.filter(x=> x.priority === 1)                          //오늘 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
+                    let noPri = filteredByDay.filter(x=> x.priority !== 1)                        //오늘 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
+                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))  //어제 리스트를 가져온다
+                    let restPri = restOfDays.filter(x=> x.priority === 1)                         //어제 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
+                    let restNoPri = restOfDays.filter(x=> x.priority !== 1)                       //어제 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
 
-                    if(Number(filteredByDay[0]['day']) === Number(newDate)) {
-                        let temp_html2 = `
-                                            <p>${newYear}/${newMonth}/${newDate}</p>
-                                            <div id="bucket${newDate}" class="buckets">
-                                            </div>
-                                       `
-                        $('.bucket-sets').append(temp_html2)
-
-                        for(let i = 0; i < pri.length; i++) {
-                            let bucket = pri[i]['bucket']
-                            let num = pri[i]['num']
-                            let done = pri[i]['done']
-                            let temp_html = ``;
-
-                            if (done) {
-                            temp_html = `
-                                        <div class="bucket-list">
-                                            <div style="display: flex;">
-                                                <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                <p class="done"><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${bucket}</p>
-                                            </div>
-                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                        </div>`
-
-                            } else {
-                            temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                    <p><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${bucket}</p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                            $(`#bucket${newDate}`).append(temp_html)
-                        }
-
-                        for(let i = 0; i < noPri.length; i++) {
-                            let bucket = noPri[i]['bucket']
-                            let num = noPri[i]['num']
-                            let done = noPri[i]['done']
-                            let temp_html = ``;
-
-                            if (done) {
-                            temp_html = `
-                                        <div class="bucket-list">
-                                            <div style="display: flex;">
-                                                <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                <p class="done"><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${bucket}</p>
-                                            </div>
-                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                        </div>`
-
-                            } else {
-                            temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                    <p><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${bucket}</p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                            $(`#bucket${newDate}`).append(temp_html)
-                        }
-
-
-                    }
-                    if(Number(restOfDays[0]['day']) === Number(newDate-1)) {
-                        let temp_html2 = `
-                                        <p>${newYear}/${newMonth}/${newDate-1}</p>
-                                        <div id="bucket${newDate-1}" class="buckets">
-                                        </div>`
-                        $('.bucket-sets').append(temp_html2)
-                        for(let i = 0; i < restPri.length; i++) {
-                            let bucket = restPri[i]['bucket']
-                            let num = restPri[i]['num']
-                            let done = restPri[i]['done']
-                            let temp_html = ``;
-
-                            if (done) {
-                            temp_html = `
-                                        <div class="bucket-list">
-                                            <div style="display: flex;">
-                                                <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                <p class="done"><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${bucket}</p>
-                                            </div>
-                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                        </div>`
-
-                            } else {
-                            temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                    <p><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${bucket}</p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                            $(`#bucket${newDate-1}`).append(temp_html)
-                        }
-
-                        for(let i = 0; i < restNoPri.length; i++) {
-                            let bucket = restNoPri[i]['bucket']
-                            let num = restNoPri[i]['num']
-                            let done = restNoPri[i]['done']
-                            let temp_html = ``;
-
-                            if (done) {
-                            temp_html = `
-                                        <div class="bucket-list">
-                                            <div style="display: flex;">
-                                                <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                <p class="done"><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${bucket}</p>
-                                            </div>
-                                            <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                        </div>`
-
-                            } else {
-                            temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
-                                                    <p><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${bucket}</p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                            $(`#bucket${newDate-1}`).append(temp_html)
-                        }
-
-                    }
-
+                    showList(filteredByDay, pri, noPri, newDate);
+                    showList(restOfDays, restPri, restNoPri, newDate-1);
 
                 }
             });
         }
 
-        function prioritySet(num) {
+        function showList(filtered, pri, noPri, day) {
+            let date = new Date();
+            let newMonth = date.getMonth();
+            let newYear = date.getFullYear();
+            if(Number(filtered[0]['day']) === Number(day)) { //db에 저장된 날짜와 현재 날짜가 같을 때 + string으로 받는 값을 number로 바꿔준다.
+                let temp_html2 = `
+                                    <p>${newYear}/${newMonth}/${day}</p>
+                                    <div id="bucket${day}" class="buckets">
+                                    </div>
+                               `
+                $('.bucket-sets').append(temp_html2)  //오늘의 리스트를 넣을 블록을 하나 만든다
+
+                for(let i = 0; i < pri.length; i++) {  //오늘 리스트중 priority가 1인 값에서 정보를 가져온다.
+                    let bucket = pri[i]['bucket']
+                    let num = pri[i]['num']
+                    let done = pri[i]['done']
+                    let temp_html = ``;
+
+                    if (done) {
+                    temp_html = `
+                                <div class="bucket-list">
+                                    <div style="display: flex;">
+                                        <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                        <p class="done"><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${bucket}</p>
+                                    </div>
+                                    <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                </div>`
+
+                    } else {
+                    temp_html = `
+                                    <div class="bucket-list">
+                                        <div style="display: flex;">
+                                            <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                            <p><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${bucket}</p>
+                                        </div>
+                                        <button onclick="done_bucket('${num}')" class="btn">완료</button>
+                                    </div>
+                                    `
+                    }
+                    $(`#bucket${day}`).append(temp_html) //오늘의 투두리스트중 priority가 1인값을 먼저 리스트한다.
+                }
+
+                for(let i = 0; i < noPri.length; i++) { //오늘 리스트중 priority가 0인 값에서 정보를 가져온다.
+                    let bucket = noPri[i]['bucket']
+                    let num = noPri[i]['num']
+                    let done = noPri[i]['done']
+                    let temp_html = ``;
+
+                    if (done) {
+                    temp_html = `
+                                <div class="bucket-list">
+                                    <div style="display: flex;">
+                                        <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                        <p class="done"><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${bucket}</p>
+                                    </div>
+                                    <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                </div>`
+
+                    } else {
+                    temp_html = `
+                                    <div class="bucket-list">
+                                        <div style="display: flex;">
+                                            <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                            <p><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${bucket}</p>
+                                        </div>
+                                        <button onclick="done_bucket('${num}')" class="btn">완료</button>
+                                    </div>
+                                    `
+                    }
+                    $(`#bucket${day}`).append(temp_html) //오늘의 투두리스트중 priority가 0인값을 나중에 리스트한다.
+                }
+            }
+        }
+
+        function prioritySet(num) { //☆ => ★
             $.ajax({
                 type: "POST",
                 url: "/todo_priority",
@@ -408,7 +346,7 @@
             });
         }
 
-        function priorityUnSet(num) {
+        function priorityUnSet(num) { //★ => ☆
             $.ajax({
                 type: "POST",
                 url: "/todo_nopriority",
@@ -444,7 +382,7 @@
             });
         }
 
-        function showDelete() {
+        function showDelete() { // ❌ 아이콘을 보여준다
             $.ajax({
                 type: "GET",
                 url: "/todo_show",
@@ -460,7 +398,7 @@
             });
         }
 
-        function DeleteList(num) {
+        function DeleteList(num) { // 리스트를 지운다
             $.ajax({
                 type: "POST",
                 url: "/todo_delete",
@@ -474,7 +412,7 @@
             });
         }
 
-        function hideDelete() {
+        function hideDelete() { // ❌ 아이콘을 숨긴다
             $.ajax({
                 type: "GET",
                 url: "/todo_show",
