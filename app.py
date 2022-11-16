@@ -1,8 +1,11 @@
+from nanoid import generate
 from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 
 from pymongo import MongoClient
-client = MongoClient('mongodb+srv://test:sparta@cluster0.q6bdrv2.mongodb.net/Cluster0?retryWrites=true&w=majority')
+import certifi
+ca = certifi.where()
+client = MongoClient('mongodb+srv://test:sparta@cluster0.q6bdrv2.mongodb.net/Cluster0?retryWrites=true&w=majority', tlsCAFile=ca)
 db = client.dbsparta
 
 # JWT 토큰을 만들 때 필요한 비밀문자열입니다.
@@ -26,7 +29,7 @@ def home():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"id": payload['id']})
-        return render_template('index.html', nickname=user_info["nick"])
+        return render_template('index.html', id=user_info["id"], nickname=user_info["nick"])
     except jwt.ExpiredSignatureError:
         return render_template('index.html', msg="로그인 시간이 만료되었습니다.")
     except jwt.exceptions.DecodeError:
@@ -34,9 +37,7 @@ def home():
 
 @app.route('/login')
 def login():
-    msg = request.args.get("msg")
-    return render_template('login.html', msg=msg)
-
+    return render_template('login.html')
 
 @app.route('/register')
 def register():
@@ -52,12 +53,10 @@ def todo_post():
     day = request.form['day_give']
     id = request.form['id_give']
 
-    bucket_list = list(db.bucket.find({}, {'_id': False}))
-    # count = len(bucket_list) + 1
     count = generate()
 
     doc = {
-        'bucket': list_receive,
+        'list': list_receive,
         'year': year,
         'month': month,
         'day': day,
@@ -65,32 +64,42 @@ def todo_post():
         'done': 0,
         'id': id
     }
-    db.bucket.insert_one(doc)
+    db.lists.insert_one(doc)
     return jsonify({'msg': '등록 완료!'})
 
 @app.route("/todo_show", methods=["GET"])
 def todo_get():
-    buckets = list(db.bucket.find({}, {'_id': False}))
-    return jsonify({'buckets': buckets})
+    lists = list(db.lists.find({}, {'_id': False}))
+    return jsonify({'lists': lists})
 
 @app.route("/todo_done", methods=["POST"])
 def todo_done():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 1}})
+    db.lists.update_one({'num': num_receive}, {'$set': {'done': 1}})
     return jsonify({'msg': '버킷 완료!'})
 
 @app.route("/todo_undone", methods=["POST"])
 def todo_undone():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 0}})
+    db.lists.update_one({'num': num_receive}, {'$set': {'done': 0}})
     return jsonify({'msg': '버킷 취소!'})
 
-# 수정 필요
-@app.route("/todo_delete", methods=["POST"])
-def bucket_delete():
+@app.route("/todo_priority", methods=["POST"])
+def todo_priority():
     num_receive = request.form['num_give']
-    print(num_receive)
-    db.bucket.delete_one({'num': num_receive})
+    db.lists.update_one({'num': num_receive}, {'$set': {'priority': 1}})
+    return jsonify({'msg': '버킷 완료!'})
+
+@app.route("/todo_nopriority", methods=["POST"])
+def todo_nopriority():
+    num_receive = request.form['num_give']
+    db.lists.update_one({'num': num_receive}, {'$set': {'priority': 0}})
+    return jsonify({'msg': '버킷 완료!'})
+
+@app.route("/todo_delete", methods=["POST"])
+def todo_delete():
+    num_receive = request.form['num_give']
+    db.lists.delete_one({'num': num_receive})
     return jsonify({'msg': '버킷 삭제!'})
 
 #################################
@@ -152,7 +161,7 @@ def api_login():
         # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=6000)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 

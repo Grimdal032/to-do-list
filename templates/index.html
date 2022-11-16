@@ -5,15 +5,8 @@
     <title>Title</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-
-    <!-- Bulma CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-
-    <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-
 
     <style>
         body {
@@ -24,7 +17,7 @@
             margin: 0 auto;
         }
 
-        .header{
+        .header {
             display: flex;
             flex-direction: column;
         }
@@ -35,20 +28,16 @@
             margin-top: 10px;
         }
 
-        /* 지점 */
         .header-right > button {
-            padding: 10px;
-            margin: 30px 0;
+            border: 1px solid gray;
+            border-radius: 5px;
+            outline: 0;
+
+            margin-right: 10px;
         }
 
         .header-right > button:hover {
             background-color: #928a8a;
-        }
-
-
-        .header-left {
-            margin-top: 20px;
-            text-align: center;
         }
 
         .header-left > h1 {
@@ -56,32 +45,37 @@
             margin-right: 5px;
         }
 
-        .form-select {
-            width: 100%;
-        }
-
-        .buckets {
+        .lists {
             padding: 10px;
-            box-shadow: 0 0 5px 0px dodgerblue;
+            box-shadow: 0 0 5px 0 dodgerblue;
             border-radius: 5px;
         }
 
-        .bucket-input {
-            box-shadow: 0 0 5px 0px dodgerblue;
-            padding: 10px;
-            margin: 30px 0;
+        .lists-day {
+            width: 100px;
+            margin-bottom: 10px;
         }
 
-        .bucket-input input {
+        .lists-set > p:nth-of-type(2) {
+            margin-top: 30px;
+        }
+
+        .list-input {
+            box-shadow: 0 0 5px 0 dodgerblue;
+            padding: 10px;
+            margin: 30px 0 15px;
+        }
+
+        .list-input input {
             margin: 0 5px;
         }
 
-        .bucket-input-items {
+        .list-input-items {
             display: flex;
             justify-content: space-between;
         }
 
-        .bucket-input-items > input {
+        .list-input-items > input {
             width: 80%;
             border: 1px solid #c6c2c2;
             border-radius: 5px;
@@ -89,14 +83,14 @@
             text-indent: 5px;
         }
 
-        .bucket-input-items > input:focus {
+        .list-input-items > input:focus {
             border: 1px solid gray;
             outline: 0;
 
             border-radius: 5px;
         }
 
-        .bucket-list {
+        .list {
             display: flex;
             justify-content: space-between;
             max-width: 600px;
@@ -106,12 +100,12 @@
             font-size: 17px;
         }
 
-        .bucket-list > p {
+        .list > p {
             max-width: 40ch;
             margin: 0;
         }
 
-        .bucket-list > div > p:first-of-type {
+        .list > div > p:first-of-type {
             cursor: pointer;
         }
 
@@ -157,45 +151,67 @@
             margin-bottom: 0;
         }
 
-        .buckets > div > p.done {
-            text-decoration: line-through
+        .lists > div > p.done {
+            text-decoration: line-through;
+            text-decoration-color: red;
         }
 
-        .buckets > div > div > p.done {
-            text-decoration: line-through
+        .lists > div > div > p.done {
+            text-decoration: line-through;
+            text-decoration-color: red;
         }
 
         .icon {
             display: none;
         }
     </style>
-    <script>
+    <script >
         $(document).ready(function () {
-            showList();
+            showLists(); //시작하자마자 showList()함수를 실행한다.
+            credentialCheck();
         });
 
-        function login() {
-            window.location.href = '/login'
-        }
-        // 로그아웃은 내가 가지고 있는 토큰만 쿠키에서 없애면 됩니다.
-        function logout(){
-            $.removeCookie('mytoken');
-            alert('로그아웃!')
-            window.location.href='/'
+        function credentialCheck() {
+            $('#header-right').empty()
+            $('#greet').empty()
+            let id = '{{id}}'
+            if($.cookie('mytoken') && id) {
+                let temp_html = `<button onclick="logout()" class="btn">로그아웃</button>`
+                let temp_html2 = `<p>{{nickname}} 님 안녕하세요 😊</p>`
+                $('#header-right').append(temp_html)
+                $('#greet').append(temp_html2)
+            } else {
+                let temp_html = `
+                                 <button onclick="loginPage()" class="btn">로그인</button>`
+                let temp_html2 = `<p>로그인 해주세요 😢</p>`
+                $('#header-right').append(temp_html)
+                $('#greet').append(temp_html2)
+            }
         }
 
-        function postList() {
+        function loginPage() {
+            window.location.href = "/login"
+        }
+
+
+        function logout() {   //쿠키에서 토큰 삭제하고 로그인 페이지로 이동
+            $.removeCookie('mytoken');
+            alert('로그아웃!')
+            window.location.href = '/'
+        }
+
+        function postList() {  //todolist를 db로 전달한다.
             let date = new Date();
             let day = date.getDate()
             let year = date.getFullYear()
-            let month = date.getMonth()
+            let month = date.getMonth()+1
             let list = $('#todo-input').val();
             let id = '{{id}}';
             $.ajax({
                 type: "POST",
                 url: "/todo_post",
                 data: {
-                    list_give: List,
+                    list_give: list,
                     year_give: year,
                     month_give: month,
                     day_give: day,
@@ -208,8 +224,8 @@
             });
         }
 
-        function showList() {
-            $('.buckets').empty()
+        function showLists() {  //todolist를 db로부터 가져와 보여준다.
+            $('.lists').empty()
             $.ajax({
                 type: "GET",
                 url: "/todo_show",
@@ -219,166 +235,219 @@
                     let newDate = date.getDate();
                     let newYear = date.getFullYear();
                     let newMonth = date.getMonth() + 1;
-                    let rows = response['buckets'];
-                    let id = '{{id}}'
+                    let rows = response['lists'];
+                    let id = '{{id}}' //토큰을 성공적으로 발급 받았을 때 로그인한 id값을 가져온다.
                     let filterArray = [];
 
-                                        let temp_html = ''
-                    // 비로그인 시에 -> 로그인 버튼 이 나오게 하도록
-                    // 로그인 시에 -> 비로그인 버튼이 나오게 하도록 구현
-                    if(document.cookie === '') {    // 비로그인 시(쿠키 없음)
-                        temp_html = `<div class="header-right">
-                                        <button className="btn" onclick="login()" class="btn btn-margin">로그인</button>
-                                     </div>`
+                    $('.lists-set').empty() //lists-set 상자 안을 비운다.
 
-                    }
-                    else {  // 로그인 시 -> 로그아웃 버튼 구현
-                        temp_html = `<div class="header-right">
-                                        <button className="btn" onclick="logout()" class="btn btn-margin">로그아웃</button>
-                                    </div>`
-                    }
-                    $('.header-right').append(temp_html)
-                    temp_html = ``;
-
-                    $('.bucket-sets').empty()
-
-                    for (let i = 0; i < rows.length; i++) {
-                        let bucket = rows[i]['bucket']
+                    for (let i = 0; i < rows.length; i++) {  //모든 리스트에서 정보를 얻는다.
+                        let list = rows[i]['list']
                         let num = rows[i]['num']
                         let done = rows[i]['done']
+                        let priority = rows[i]['priority']
                         let year = rows[i]['year']
                         let month = rows[i]['month']
                         let day = rows[i]['day']
                         let savedId = rows[i]['id']
                         let gatherInfo;
 
-                        if (savedId === id) {
+                        if (savedId === id) { //db에 저장된 아이디와 현재 접속한 아이디가 같을 때의 정보를 얻는다.
                             gatherInfo = {
-                                bucket: bucket,
+                                list: list,
                                 num: num,
                                 done: done,
                                 year: year,
                                 month: month,
                                 day: day,
                                 id: savedId,
+                                priority: priority,
                             }
-                            filterArray.push(gatherInfo)
+                            filterArray.push(gatherInfo) //얻은 정보를 filterArray에 저장한다.
                         }
                     }
 
-                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate))
-                    console.log(filteredByDay)
-                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))
-                    if(Number(filteredByDay[0]['day']) === Number(newDate)) {
-                        let temp_html2 = `
-                                            <div style="display: flex; flex-direction: row">
-                                                <div>
-                                                    <button>별</button>
-                                                    <button>달</button>
-                                                </div>
-                                                <p>${newYear}/${newMonth}/${newDate}</p>
-                                            </div>
-                                            <div id="bucket${newDate}" class="buckets">
-                                            </div>
-                                       `
-                        $('.bucket-sets').append(temp_html2)
+                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate)) //오늘 리스트를 가져온다
+                    let pri = filteredByDay.filter(x=> x.priority === 1)                          //오늘 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
+                    let noPri = filteredByDay.filter(x=> x.priority !== 1)                        //오늘 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
+                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))  //어제 리스트를 가져온다
+                    let restPri = restOfDays.filter(x=> x.priority === 1)                         //어제 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
+                    let restNoPri = restOfDays.filter(x=> x.priority !== 1)                       //어제 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
 
-                        for(let i = 0; i < filteredByDay.length; i++) {
-                        let bucket = filteredByDay[i]['bucket']
-                        let num = filteredByDay[i]['num']
-                        let done = filteredByDay[i]['done']
-                        let temp_html = ``
-                        if (done) {
-                                temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
-                                                    <p class="done">🌟 ${bucket}</p>
-                                                </div>
-                                                <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                            </div>`
-
-                            } else {
-                                temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
-                                                    <p>🌟 ${bucket}</p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                            $(`#bucket${newDate}`).append(temp_html)
-                        }
+                    if(filteredByDay.length === 0) {
+                        showList(restOfDays, restPri, restNoPri, newDate-1);
+                    } else {
+                        showList(filteredByDay, pri, noPri, newDate);
+                        showList(restOfDays, restPri, restNoPri, newDate-1);
                     }
-                    if(Number(restOfDays[0]['day']) === Number(newDate-1)) {
-                        let temp_html2 = `<div style="display: flex; flex-direction: row">
-                                            <div>
-                                                <button>별</button>
-                                                <button>달</button>
-                                            </div>
-                                            <p>${newYear}/${newMonth}/${newDate-1}</p>
+                }
+            });
+        }
+
+        function showList(filtered, pri, noPri, day) {
+            let date = new Date();
+            let newMonth = date.getMonth()+1;
+            let newYear = date.getFullYear();
+            if(Number(filtered[0]['day']) === Number(day)) { //db에 저장된 날짜와 현재 날짜가 같을 때 + string으로 받는 값을 number로 바꿔준다.
+                let temp_html2 = `
+                                    <p class="lists lists-day">${newYear}/${newMonth}/${day}</p>
+                                    <div id="list${day}" class="lists">
+                                    </div>
+                               `
+                $('.lists-set').append(temp_html2)  //오늘의 리스트를 넣을 블록을 하나 만든다
+
+                for(let i = 0; i < pri.length; i++) {  //오늘 리스트중 priority가 1인 값에서 정보를 가져온다.
+                    let list = pri[i]['list']
+                    let num = pri[i]['num']
+                    let done = pri[i]['done']
+                    let temp_html = ``;
+
+                    if (done) {
+                    temp_html = `
+                                <div class="list">
+                                    <div style="display: flex;">
+                                        <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                        <p class="done"><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${list}</p>
+                                    </div>
+                                    <button onclick="undone_list('${num}')" class="btn btn-danger">취소</button>
+                                </div>`
+
+                    } else {
+                    temp_html = `
+                                    <div class="list">
+                                        <div style="display: flex;">
+                                            <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                            <p><span onclick="priorityUnSet('${num}')" style="cursor: pointer">★</span> ${list}</p>
                                         </div>
-                                        <div id="bucket${newDate-1}" class="buckets">
-                                        </div>`
-                        $('.bucket-sets').append(temp_html2)
-                        for(let i = 0; i < restOfDays.length; i++) {
-                            let bucket = restOfDays[i]['bucket']
-                            let num = restOfDays[i]['num']
-                            let done = restOfDays[i]['done']
-                            let temp_html = ``
-                            if (done) {
-                                temp_html = `
-                                             <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
-                                                    <p class="done">🌟 ${bucket}</p>
-                                                </div>
-                                                <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
-                                            </div>`
+                                        <button onclick="done_list('${num}')" class="btn">완료</button>
+                                    </div>
+                                    `
+                    }
+                    $(`#list${day}`).append(temp_html) //오늘의 투두리스트중 priority가 1인값을 먼저 리스트한다.
+                }
 
-                            } else {
-                                temp_html = `
-                                            <div class="bucket-list">
-                                                <div style="display: flex;">
-                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
-                                                    <p>🌟 ${bucket}</p>
-                                                </div>
-                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
-                                            </div>
-                                            `
-                            }
-                            $(`#bucket${newDate-1}`).append(temp_html)
-                        }
+                for(let i = 0; i < noPri.length; i++) { //오늘 리스트중 priority가 0인 값에서 정보를 가져온다.
+                    let list = noPri[i]['list']
+                    let num = noPri[i]['num']
+                    let done = noPri[i]['done']
+                    let temp_html = ``;
+
+                    if (done) {
+                    temp_html = `
+                                <div class="list">
+                                    <div style="display: flex;">
+                                        <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                        <p class="done"><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${list}</p>
+                                    </div>
+                                    <button onclick="undone_list('${num}')" class="btn btn-danger">취소</button>
+                                </div>`
+
+                    } else {
+                    temp_html = `
+                                    <div class="list">
+                                        <div style="display: flex;">
+                                            <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">❌</p>
+                                            <p><span onclick="prioritySet('${num}')" style="cursor: pointer">☆</span> ${list}</p>
+                                        </div>
+                                        <button onclick="done_list('${num}')" class="btn">완료</button>
+                                    </div>
+                                    `
+                    }
+                    $(`#list${day}`).append(temp_html) //오늘의 투두리스트중 priority가 0인값을 나중에 리스트한다.
+                }
+            }
+        }
+
+        function prioritySet(num) { //☆ => ★
+            $.ajax({
+                type: "POST",
+                url: "/todo_priority",
+                data: {num_give: num},
+                success: function (response) {
+                    // alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function priorityUnSet(num) { //★ => ☆
+            $.ajax({
+                type: "POST",
+                url: "/todo_nopriority",
+                data: {num_give: num},
+                success: function (response) {
+                    // alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function done_list(num) {
+            $.ajax({
+                type: "POST",
+                url: "/todo_done",
+                data: {num_give: num},
+                success: function (response) {
+                    // alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function undone_list(num) {
+            $.ajax({
+                type: "POST",
+                url: "/todo_undone",
+                data: {num_give: num},
+                success: function (response) {
+                    // alert(response["msg"])
+                    window.location.reload();
+                }
+            });
+        }
+
+        function showDelete() { // ❌ 아이콘을 보여준다
+            $.ajax({
+                type: "GET",
+                url: "/todo_show",
+                data: {},
+                success: function (response) {
+                    let rows = response['lists'];
+                    for (let i = 0; i < rows.length; i++) {
+                        let num = rows[i]['num']
+                        $(`#icon${num}`).show();
 
                     }
-
-
                 }
             });
         }
 
-        function done_bucket(num) {
+        function DeleteList(num) { // 리스트를 지운다
             $.ajax({
                 type: "POST",
-                url: "/bucket/done",
-                data: {num_give: num},
+                url: "/todo_delete",
+                data: {
+                    num_give: num,
+                },
                 success: function (response) {
-                    // alert(response["msg"])
+                    alert(response["msg"])
                     window.location.reload();
                 }
             });
         }
 
-        function undone_bucket(num) {
+        function hideDelete() { // ❌ 아이콘을 숨긴다
             $.ajax({
-                type: "POST",
-                url: "/bucket/undone",
-                data: {num_give: num},
+                type: "GET",
+                url: "/todo_show",
+                data: {},
                 success: function (response) {
-                    // alert(response["msg"])
-                    window.location.reload();
+                    let rows = response['lists'];
+                    for (let i = 0; i < rows.length; i++) {
+                        let num = rows[i]['num']
+                        $(`#icon${num}`).hide();
+
+                    }
                 }
             });
         }
@@ -386,15 +455,16 @@
 </head>
 <body>
     <div class="header">
-        <div class="header-right">
+        <div id="header-right" class="header-right">
         </div>
         <div class="header-pic">
             <img src="../static/pics/logo.png"/>
-            <p>{{nickname}} 님 안녕하세요 😊</p>
+            <div id="greet">
+            </div>
         </div>
     </div>
-    <div class="bucket-input">
-        <div class="bucket-input-items">
+    <div class="list-input">
+        <div class="list-input-items">
             <input id="todo-input" placeholder="put your todo-list here"/>
             <button class="btn" onclick="postList()">등록</button>
         </div>
@@ -405,15 +475,9 @@
         <button onclick="hideDelete()" class="btn btn-margin">취소</button>
     </div>
 
-    <div class="bucket-sets">
-        <div style="display: flex; flex-direction: row">
-            <div>
-                <button>별</button>
-                <button>달</button>
-            </div>
-            <p>year/month/day</p>
-        </div>
-        <div class="buckets">
+    <div class="lists-set">
+        <p>year/month/day</p>
+        <div class="lists">
         </div>
     </div>
 
