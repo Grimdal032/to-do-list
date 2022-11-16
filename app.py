@@ -127,12 +127,10 @@ def todo_post():
     day = request.form['day_give']
     id = request.form['id_give']
 
-    bucket_list = list(db.bucket.find({}, {'_id': False}))
-    # count = len(bucket_list) + 1
     count = generate()
 
     doc = {
-        'bucket': list_receive,
+        'list': list_receive,
         'year': year,
         'month': month,
         'day': day,
@@ -141,43 +139,42 @@ def todo_post():
         'priority': 0,
         'id': id
     }
-    db.bucket.insert_one(doc)
+    db.lists.insert_one(doc)
     return jsonify({'msg': '등록 완료!'})
 
 @app.route("/todo_show", methods=["GET"])
 def todo_get():
-    buckets = list(db.bucket.find({}, {'_id': False}))
-    return jsonify({'buckets': buckets})
+    lists = list(db.lists.find({}, {'_id': False}))
+    return jsonify({'lists': lists})
 
 @app.route("/todo_done", methods=["POST"])
 def todo_done():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 1}})
+    db.lists.update_one({'num': num_receive}, {'$set': {'done': 1}})
     return jsonify({'msg': '버킷 완료!'})
 
 @app.route("/todo_undone", methods=["POST"])
 def todo_undone():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 0}})
+    db.lists.update_one({'num': num_receive}, {'$set': {'done': 0}})
     return jsonify({'msg': '버킷 취소!'})
 
 @app.route("/todo_priority", methods=["POST"])
 def todo_priority():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': num_receive}, {'$set': {'priority': 1}})
+    db.lists.update_one({'num': num_receive}, {'$set': {'priority': 1}})
     return jsonify({'msg': '버킷 완료!'})
 
 @app.route("/todo_nopriority", methods=["POST"])
 def todo_nopriority():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': num_receive}, {'$set': {'priority': 0}})
+    db.lists.update_one({'num': num_receive}, {'$set': {'priority': 0}})
     return jsonify({'msg': '버킷 완료!'})
 
 @app.route("/todo_delete", methods=["POST"])
-def bucket_delete():
+def todo_delete():
     num_receive = request.form['num_give']
-    print(num_receive)
-    db.bucket.delete_one({'num': num_receive})
+    db.lists.delete_one({'num': num_receive})
     return jsonify({'msg': '버킷 삭제!'})
 
 if __name__ == '__main__':
