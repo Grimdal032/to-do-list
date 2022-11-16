@@ -35,12 +35,10 @@
             margin-top: 10px;
         }
 
+        /* 지점 */
         .header-right > button {
-            border: 1px solid gray;
-            border-radius: 5px;
-            outline: 0;
-
-            margin-right: 10px;
+            padding: 10px;
+            margin: 30px 0;
         }
 
         .header-right > button:hover {
@@ -113,17 +111,8 @@
             margin: 0;
         }
 
-        .input-group {
-            width: 85px;
-        }
-
-        .input-year {
-            width: 122px;
-            margin-right: 5px;
-        }
-
-        .input-month {
-            width: 100px;
+        .bucket-list > div > p:first-of-type {
+            cursor: pointer;
         }
 
         .btn {
@@ -148,26 +137,37 @@
             background-color: red;
         }
 
-        .header-left-title {
-            font-size: 50px;
+        .btn-margin {
+            margin-bottom: 15px;
         }
 
-        .header-left h1 p:first-of-type {
-            text-align: left;
-            margin: 0 0 0 20%;
+        .flex {
+            display: flex;
+            justify-content: flex-end;
         }
 
-        .header-left h1 p:nth-of-type(2) {
-            text-align: left;
-            margin: 0 0 0 30%;
+        .header-pic > img {
+            margin: 0 auto;
+            max-width: 600px;
+            width: 100%;
         }
 
+        .header-pic > p {
+            padding-top: 20px;
+            margin-bottom: 0;
+        }
 
         .buckets > div > p.done {
             text-decoration: line-through
         }
 
+        .buckets > div > div > p.done {
+            text-decoration: line-through
+        }
 
+        .icon {
+            display: none;
+        }
     </style>
     <script>
         $(document).ready(function () {
@@ -185,14 +185,22 @@
         }
 
         function postList() {
-            let List = $('#todo-input').val();
-            let year = $('#year :selected').text();
-            let month = $('#month :selected').text();
-            // console.log(List, year, month)
+            let date = new Date();
+            let day = date.getDate()
+            let year = date.getFullYear()
+            let month = date.getMonth()
+            let list = $('#todo-input').val();
+            let id = '{{id}}';
             $.ajax({
                 type: "POST",
-                url: "/bucket",
-                data: {list_give: List, year_give: year, month_give: month},
+                url: "/todo_post",
+                data: {
+                    list_give: List,
+                    year_give: year,
+                    month_give: month,
+                    day_give: day,
+                    id_give: id,
+                },
                 success: function (response) {
                     alert(response["msg"])
                     window.location.reload();
@@ -204,53 +212,149 @@
             $('.buckets').empty()
             $.ajax({
                 type: "GET",
-                url: "/bucket",
+                url: "/todo_show",
                 data: {},
                 success: function (response) {
+                    let date = new Date();
+                    let newDate = date.getDate();
+                    let newYear = date.getFullYear();
+                    let newMonth = date.getMonth() + 1;
                     let rows = response['buckets'];
+                    let id = '{{id}}'
+                    let filterArray = [];
 
-                    let temp_html = ''
+                                        let temp_html = ''
                     // 비로그인 시에 -> 로그인 버튼 이 나오게 하도록
                     // 로그인 시에 -> 비로그인 버튼이 나오게 하도록 구현
                     if(document.cookie === '') {    // 비로그인 시(쿠키 없음)
                         temp_html = `<div class="header-right">
-                                        <button className="btn" onclick="login()">로그인</button>
+                                        <button className="btn" onclick="login()" class="btn btn-margin">로그인</button>
                                      </div>`
 
                     }
                     else {  // 로그인 시 -> 로그아웃 버튼 구현
                         temp_html = `<div class="header-right">
-                                        <button className="btn" onclick="logout()">로그아웃</button>
+                                        <button className="btn" onclick="logout()" class="btn btn-margin">로그아웃</button>
                                     </div>`
                     }
                     $('.header-right').append(temp_html)
                     temp_html = ``;
 
-                    for(let i = 0; i < rows.length; i++) {
+                    $('.bucket-sets').empty()
+
+                    for (let i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let num = rows[i]['num']
                         let done = rows[i]['done']
                         let year = rows[i]['year']
                         let month = rows[i]['month']
-                        let temp_html = ``;
-                        if (done) {
-                            temp_html = `
-                                        <div class="bucket-list">
-                                            <p class="done">🌟 ${bucket} (${year}/${month})</p>
-                                            <button onclick="undone_bucket(${num})" class="btn btn-danger">취소</button>
-                                        </div>`
+                        let day = rows[i]['day']
+                        let savedId = rows[i]['id']
+                        let gatherInfo;
 
-                        } else {
-                            temp_html = `
-                                        <div class="bucket-list">
-                                            <p>🌟 ${bucket} (${year}/${month})</p>
-                                            <button onclick="done_bucket(${num})" class="btn">완료</button>
+                        if (savedId === id) {
+                            gatherInfo = {
+                                bucket: bucket,
+                                num: num,
+                                done: done,
+                                year: year,
+                                month: month,
+                                day: day,
+                                id: savedId,
+                            }
+                            filterArray.push(gatherInfo)
+                        }
+                    }
+
+                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate))
+                    console.log(filteredByDay)
+                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))
+                    if(Number(filteredByDay[0]['day']) === Number(newDate)) {
+                        let temp_html2 = `
+                                            <div style="display: flex; flex-direction: row">
+                                                <div>
+                                                    <button>별</button>
+                                                    <button>달</button>
+                                                </div>
+                                                <p>${newYear}/${newMonth}/${newDate}</p>
+                                            </div>
+                                            <div id="bucket${newDate}" class="buckets">
+                                            </div>
+                                       `
+                        $('.bucket-sets').append(temp_html2)
+
+                        for(let i = 0; i < filteredByDay.length; i++) {
+                        let bucket = filteredByDay[i]['bucket']
+                        let num = filteredByDay[i]['num']
+                        let done = filteredByDay[i]['done']
+                        let temp_html = ``
+                        if (done) {
+                                temp_html = `
+                                            <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p class="done">🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                            </div>`
+
+                            } else {
+                                temp_html = `
+                                            <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p>🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
+                                            </div>
+                                            `
+                            }
+                            $(`#bucket${newDate}`).append(temp_html)
+                        }
+                    }
+                    if(Number(restOfDays[0]['day']) === Number(newDate-1)) {
+                        let temp_html2 = `<div style="display: flex; flex-direction: row">
+                                            <div>
+                                                <button>별</button>
+                                                <button>달</button>
+                                            </div>
+                                            <p>${newYear}/${newMonth}/${newDate-1}</p>
                                         </div>
-                                        `
+                                        <div id="bucket${newDate-1}" class="buckets">
+                                        </div>`
+                        $('.bucket-sets').append(temp_html2)
+                        for(let i = 0; i < restOfDays.length; i++) {
+                            let bucket = restOfDays[i]['bucket']
+                            let num = restOfDays[i]['num']
+                            let done = restOfDays[i]['done']
+                            let temp_html = ``
+                            if (done) {
+                                temp_html = `
+                                             <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p class="done">🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="undone_bucket('${num}')" class="btn btn-danger">취소</button>
+                                            </div>`
+
+                            } else {
+                                temp_html = `
+                                            <div class="bucket-list">
+                                                <div style="display: flex;">
+                                                    <p class="icon" id="icon${num}" onclick="DeleteList('${num}')">hmm</p>
+                                                    <p>🌟 ${bucket}</p>
+                                                </div>
+                                                <button onclick="done_bucket('${num}')" class="btn">완료</button>
+                                            </div>
+                                            `
+                            }
+                            $(`#bucket${newDate-1}`).append(temp_html)
                         }
 
-                        $('.buckets').append(temp_html)
                     }
+
+
                 }
             });
         }
@@ -283,58 +387,37 @@
 <body>
     <div class="header">
         <div class="header-right">
-
         </div>
-        <div class="header-left">
-            <h1><p><span class="header-left-title">오늘</span> 할 일을 </p><p><span class="header-left-title">내일</span>로 미루지 말자 </p></h1>
+        <div class="header-pic">
+            <img src="../static/pics/logo.png"/>
+            <p>{{nickname}} 님 안녕하세요 😊</p>
         </div>
     </div>
     <div class="bucket-input">
         <div class="bucket-input-items">
-            <div class="input-group input-year">
-                <select id = 'year' class="form-select">
-                    <option selected>년</option>
-                    <option value="1">2022</option>
-                    <option value="2">2021</option>
-                    <option value="3">2020</option>
-                    <option value="4">2019</option>
-                </select>
-            </div>
-            <div class="input-group input-month">
-                <select id="month" class="form-select" >
-                    <option selected>월</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                </select>
-            </div>
             <input id="todo-input" placeholder="put your todo-list here"/>
             <button class="btn" onclick="postList()">등록</button>
         </div>
+    </div>
 
+    <div class="flex">
+        <button onclick="showDelete()" style="margin-right: 5px" class="btn btn-danger btn-margin">삭제</button>
+        <button onclick="hideDelete()" class="btn btn-margin">취소</button>
     </div>
-    <div class="buckets">
-        <div class="bucket-list">
-            <p>🌟 your todo list (year/month)</p>
-            <button onclick="postList()" class="btn">완료</button>
+
+    <div class="bucket-sets">
+        <div style="display: flex; flex-direction: row">
+            <div>
+                <button>별</button>
+                <button>달</button>
+            </div>
+            <p>year/month/day</p>
         </div>
-        <div class="bucket-list">
-            <p>🌟 your todo list</p>
-            <p>year/month</p>
-        </div>
-        <div class="bucket-list">
-            <p>🌟 your todo list</p>
-            <p>year/month</p>
+        <div class="buckets">
         </div>
     </div>
+
+
+
 </body>
 </html>

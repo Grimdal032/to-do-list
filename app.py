@@ -22,7 +22,15 @@ import hashlib
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.user.find_one({"id": payload['id']})
+        return render_template('index.html', nickname=user_info["nick"])
+    except jwt.ExpiredSignatureError:
+        return render_template('index.html', msg="로그인 시간이 만료되었습니다.")
+    except jwt.exceptions.DecodeError:
+        return render_template('index.html', msg="로그인 정보가 존재하지 않습니다.")
 
 @app.route('/login')
 def login():
@@ -35,41 +43,55 @@ def register():
     return render_template('register.html')
 
 
-@app.route("/bucket", methods=["POST"])
-def bucket_post():
+# to-do 관련 함수
+@app.route("/todo_post", methods=["POST"])
+def todo_post():
     list_receive = request.form['list_give']
     year = request.form['year_give']
     month = request.form['month_give']
+    day = request.form['day_give']
+    id = request.form['id_give']
 
     bucket_list = list(db.bucket.find({}, {'_id': False}))
-    count = len(bucket_list) + 1
+    # count = len(bucket_list) + 1
+    count = generate()
 
     doc = {
         'bucket': list_receive,
         'year': year,
         'month': month,
+        'day': day,
         'num': count,
         'done': 0,
+        'id': id
     }
     db.bucket.insert_one(doc)
     return jsonify({'msg': '등록 완료!'})
 
-@app.route("/bucket", methods=["GET"])
-def bucket_get():
+@app.route("/todo_show", methods=["GET"])
+def todo_get():
     buckets = list(db.bucket.find({}, {'_id': False}))
     return jsonify({'buckets': buckets})
 
-@app.route("/bucket/done", methods=["POST"])
-def bucket_done():
+@app.route("/todo_done", methods=["POST"])
+def todo_done():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 1}})
+    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 1}})
     return jsonify({'msg': '버킷 완료!'})
 
-@app.route("/bucket/undone", methods=["POST"])
-def bucket_undone():
+@app.route("/todo_undone", methods=["POST"])
+def todo_undone():
     num_receive = request.form['num_give']
-    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 0}})
+    db.bucket.update_one({'num': num_receive}, {'$set': {'done': 0}})
     return jsonify({'msg': '버킷 취소!'})
+
+# 수정 필요
+@app.route("/todo_delete", methods=["POST"])
+def bucket_delete():
+    num_receive = request.form['num_give']
+    print(num_receive)
+    db.bucket.delete_one({'num': num_receive})
+    return jsonify({'msg': '버킷 삭제!'})
 
 #################################
 ##  로그인을 위한 API            ##
@@ -88,6 +110,27 @@ def api_register():
     db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nick': nickname_receive})
 
     return jsonify({'result': 'success'})
+
+# [중복확인 API]
+@app.route('/api/idcheck', methods=['POST'])
+def idcheck():
+
+    id_receive = request.form['id_give']
+    result = db.user.find_one({'id': id_receive})
+    if result is None:
+        return jsonify({'result': 'success'})
+    else:
+        return jsonify({'result': 'fail'})
+
+@app.route('/api/nickcheck', methods=['POST'])
+def nickcheck():
+
+    nick_receive = request.form['nick_give']
+    result = db.user.find_one({'nick': nick_receive})
+    if result is None:
+        return jsonify({'result': 'success'})
+    else:
+        return jsonify({'result': 'fail'})
 
 
 # [로그인 API]

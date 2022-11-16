@@ -22,22 +22,20 @@
         }
 
         .title {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }
 
         .section has-text-centered {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
 
             box-shadow: 0px 0px 3px 0px black;
             padding: 20px;
-        }
-
-        .input-group-text {
-            width: 100px;
         }
 
         .buttons {
@@ -71,6 +69,38 @@
             })
         }
 
+        function idcheck() {
+            $.ajax({
+                type: "POST",
+                url: "/api/idcheck",
+                data: {id_give: $('#userid').val()},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert('아이디 사용이 가능합니다.')
+                    } else {
+                        alert('아이디가 중복됩니다.')
+                        return;
+                    }
+                }
+            })
+        }
+
+        function nickcheck() {
+            $.ajax({
+                type: "POST",
+                url: "/api/nickcheck",
+                data: {nick_give: $('#usernick').val()},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert('닉네임 사용이 가능합니다.')
+                    } else {
+                        alert('닉네임이 중복됩니다.')
+                        return;
+                    }
+                }
+            })
+        }
+
         function cancel() {
             window.location.href = '/login'
         }
@@ -89,22 +119,22 @@
 
     <div class="container">
         <div class="form-floating mb-3">
-            <input type="email" class="form-control" id="floatingInput" placeholder="name" >
-            <label for="floatingInput" id="userid">ID</label>
-            <button onclick="register()" type="button" class="btn btn-outline-secondary">중복확인</button>
+            <input type="email" class="form-control" id="userid" placeholder="name" >
+            <label>ID</label>
+            <button onclick="idcheck()" type="button" class="btn btn-outline-secondary">중복확인</button>
         </div>
         <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
-            <label for="floatingPassword" id="userpw">PW</label>
+            <input type="password" class="form-control" id="userpw" placeholder="Password">
+            <label>PW</label>
         </div>
         <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="floatingPasswordCheck" placeholder="Password">
-            <label for="floatingPassword" id="userpw_check">PW Check</label>
+            <input type="password" class="form-control" id="userpw_check" placeholder="Password">
+            <label>PW Check</label>
         </div>
         <div class="form-floating mb-3">
-            <input type="email" class="form-control" id="floatingNickname" placeholder="name" >
-            <label for="floatingInput" id="usernick">Nickname</label>
-            <button onclick="cancel()" type="button" class="btn btn-outline-secondary">중복확인</button>
+            <input type="email" class="form-control" id="usernick" placeholder="name" >
+            <label>Nickname</label>
+            <button onclick="nickcheck()" type="button" class="btn btn-outline-secondary">중복확인</button>
         </div>
 
     </div>
