@@ -134,6 +134,7 @@ def todo_post():
         'day': day,
         'num': count,
         'done': 0,
+        'priority': 0,
         'id': id
     }
     db.bucket.insert_one(doc)
@@ -155,6 +156,18 @@ def todo_undone():
     num_receive = request.form['num_give']
     db.bucket.update_one({'num': num_receive}, {'$set': {'done': 0}})
     return jsonify({'msg': '버킷 취소!'})
+
+@app.route("/todo_priority", methods=["POST"])
+def todo_priority():
+    num_receive = request.form['num_give']
+    db.bucket.update_one({'num': num_receive}, {'$set': {'priority': 1}})
+    return jsonify({'msg': '버킷 완료!'})
+
+@app.route("/todo_nopriority", methods=["POST"])
+def todo_nopriority():
+    num_receive = request.form['num_give']
+    db.bucket.update_one({'num': num_receive}, {'$set': {'priority': 0}})
+    return jsonify({'msg': '버킷 완료!'})
 
 @app.route("/todo_delete", methods=["POST"])
 def bucket_delete():
