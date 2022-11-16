@@ -9,38 +9,85 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <style>
-        .mytitle{
-            width: 400px;
-            height: 250px;
-
-            color: black;
-
-            text-align: center;
-            background-color: transparent;
-            background-size: cover;
-            background-position: center;
-            border: 2px solid black;
-            border-radius: 10px;
-
-            padding-top: 40px;
-
-                position: absolute;
-                top: 5%;
-                left: 50%;
-                transform: translate(-50%, 50%);
-
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-            .warp{
-                width: 300px;
-                margin: auto;
-                border-radius: 50px;
-                border: 1px solid white;
-            }
-            .A{
-                margin-left: 120px;
-            }
+        .container {
+            max-width: 400px;
+            width: 95%;
 
+            box-shadow: 0 0 5px 1px #8bbcec;
 
+            padding: 20px;
+        }
+
+        .login-text {
+            font-size: 30px;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex--row {
+            flex-direction: row;
+        }
+
+        .flex--column {
+            flex-direction: column;
+        }
+
+        .flex--sort {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mr {
+            margin: 0 10px 0 5px;
+        }
+
+        /*.input-width {*/
+        /*    width: 200px;*/
+        /*}*/
+
+        .btn {
+            color: black;
+            background-color: white;
+        }
+
+        .btn--primary {
+            border: 1px solid dodgerblue;
+        }
+
+        .btn--primary:hover {
+            background-color: #085aa7;
+            color: white;
+        }
+
+        .btn--cancel {
+            border: 1px solid indianred;
+        }
+
+        .btn--cancel:hover {
+            background-color: #ee3939;
+            color: white;
+        }
+
+        .btn--small {
+            font-size: 14px;
+        }
+
+        .label-width {
+            width: 40px;
+            text-align: center;
+        }
+
+        .input-height {
+            height: 30px;
+        }
     </style>
     <script>
         function cancel() {
@@ -73,15 +120,22 @@
     </script>
 </head>
 <body>
-    <div class="warp">
-        <div class="mytitle">
-            <h1>로그인</h1>
-            <p></p>
-            <p>ID: <input id="id" type="text"/></p>
-            <p>PW: <input id='pw' type="text"/></p>
-            <button onclick="register()">회원가입</button>
-            <button onclick="login()" class="A">로그인</button>
-            <button onclick="cancel()">취소</button>
+    <div class="container flex flex--column flex--sort">
+        <p class="login-text">로그인 페이지</p>
+        <div class="flex flex--row">
+            <p class="label-width">ID:</p>
+            <input id="id" class="input-height"/>
+        </div>
+        <div style="margin-bottom: 5px" class="flex flex--row">
+            <p class="label-width">PW:</p>
+            <input id="pw" class="input-height" />
+        </div>
+        <div class="flex flex--row">
+            <button onclick="register" class="btn btn--primary btn--small mr">회원가입</button>
+            <div class="flex">
+                <button onclick="login()" style="margin: 0 2px 0 10px" class="btn btn--primary btn--small">로그인</button>
+                <button onclick="cancel()" class="btn btn--cancel btn--small">취소</button>
+            </div>
         </div>
     </div>
 </body>
