@@ -28,18 +28,6 @@
             margin-top: 10px;
         }
 
-        .header-right > button {
-            border: 1px solid gray;
-            border-radius: 5px;
-            outline: 0;
-
-            margin-right: 10px;
-        }
-
-        .header-right > button:hover {
-            background-color: #928a8a;
-        }
-
         .header-left > h1 {
             font-size: 20px;
             margin-right: 5px;
@@ -131,6 +119,16 @@
             background-color: red;
         }
 
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid gray;
+            color: gray;
+        }
+
+        .btn-secondary:hover {
+            background-color: gray;
+        }
+
         .btn-margin {
             margin-bottom: 15px;
         }
@@ -164,6 +162,14 @@
         .icon {
             display: none;
         }
+
+        .greet {
+            border-radius: 5px;
+            box-shadow: 0 0 5px 1px pink;
+            padding: 5px;
+
+            margin-bottom: 0;
+        }
     </style>
     <script >
         $(document).ready(function () {
@@ -176,14 +182,14 @@
             $('#greet').empty()
             let id = '{{id}}'
             if($.cookie('mytoken') && id) {
-                let temp_html = `<button onclick="logout()">로그아웃</button>`
-                let temp_html2 = `<p>{{nick}} 님 안녕하세요 😊</p>`
+                let temp_html = `<button class="btn btn-secondary" onclick="logout()">로그아웃</button>`
+                let temp_html2 = `<span class="greet">{{nick}} 님 안녕하세요 😊</span>`
                 $('#header-right').append(temp_html)
                 $('#greet').append(temp_html2)
             } else {
                 let temp_html = `
-                                 <button onclick="loginPage()">로그인</button>`
-                let temp_html2 = `<p>로그인 해주세요 😢</p>`
+                                 <button class="btn btn-secondary" onclick="loginPage()">로그인</button>`
+                let temp_html2 = `<span class="greet">로그인 해주세요 😢</span>`
                 $('#header-right').append(temp_html)
                 $('#greet').append(temp_html2)
             }
@@ -207,7 +213,10 @@
             let month = date.getMonth()
             let List = $('#todo-input').val();
             let id = '{{id}}';
-            $.ajax({
+            if(!id) {
+                alert('로그인 해주세요!')
+            } else {
+                $.ajax({
                 type: "POST",
                 url: "/todo_post",
                 data: {
@@ -222,6 +231,7 @@
                     window.location.reload();
                 }
             });
+            }
         }
 
         function showLists() {  //todolist를 db로부터 가져와 보여준다.
