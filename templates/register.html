@@ -20,38 +20,44 @@
             font-family: 'Gowun Dodum', sans-serif;
         }
 
+        body {
+            height: 100vh;
+
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
         .title {
             display: flex;
             justify-content: center;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-
-        .section has-text-centered {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-            margin-bottom: 30px;
-
-            box-shadow: 0px 0px 3px 0px black;
-            padding: 20px;
-        }
-
-        .register-box {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 20px auto;
+            margin: 10px 0 40px 0;
         }
 
         .input-group-text {
             width: 100px;
         }
 
-        .buttons {
-            width: 95%;
-            max-width: 500px;
-            margin: auto;
+        .container {
+            width: 500px;
+            box-shadow: 0 0 5px 1px #ced4da;
 
+            padding: 20px;
+        }
+
+        .btn {
+            color: black;
+            background-color: white;
+        }
+
+        .btn--cancel {
+            border: 1px solid #e39393;
+        }
+
+        .btn--cancel:hover {
+            background-color: #ef4a4a;
+            color: white;
         }
 
     </style>
@@ -80,15 +86,15 @@
 
 
             if(id === '' || pw === '' || nick === '') {
-                alert('complete filling the form')
+                alert('양식을 작성해주세요')
             } else if(verifiedName === 0) {
-                alert('please verify your ID')
+                alert('아이디를 중복확인 해주세요')
                 borderId.style.border = '1px solid red'
             } else if (verifiedNick === 0){
-                alert('please verify your NICKNAME')
+                alert('닉네임을 중복확인 해주세요')
                 borderNick.style.border = '1px solid red'
             } else if(pw !== pw2) {
-                alert('two passwords should match!')
+                alert('비밀번호가 일치하지 않습니다')
                 borderPw.style.border = '1px solid red'
                 borderPw2.style.border = '1px solid red'
             } else {
@@ -166,7 +172,7 @@
 
 
         function cancel() {
-            window.location.href='/'
+            window.location.href='/login'
         }
 
 
@@ -175,15 +181,9 @@
 
 
 <body>
-
-</div>
-
-<div class="section has-text-centered">
-    <h1 class="title">회원가입 페이지</h1>
-
-
-    <div class="register-box">
+    <div class="section">
         <div class="container">
+            <h1 class="title">회원가입 페이지</h1>
             <div class="input-group mb-3">
                 <span class="input-group-text">ID</span>
                 <input type="text" class="form-control" id="userid">
@@ -202,14 +202,11 @@
                 <input type="text" class="form-control" id="usernick">
                 <button onclick="nickcheck()" type="button" class="btn btn-outline-secondary">중복확인</button>
             </div>
+            <div>
+                <button onclick="register()" type="button" class="btn btn-outline-secondary">등록하기</button>
+                <button onclick="cancel()" type="button" class=" btn btn--cancel">취소하기</button>
+            </div>
         </div>
     </div>
-
-    <div class="buttons">
-        <button onclick="register()" type="button" class="btn btn-outline-secondary">등록하기</button>
-        <button onclick="cancel()" type="button" class="btn btn-outline-secondary">취소하기</button>
-    </div>
-</div>
-
 </body>
 </html>
