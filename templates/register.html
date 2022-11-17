@@ -119,6 +119,10 @@
         }
 
         function idcheck() {
+            userid = $('#userid').val()
+            if(userid == ''){
+                return alert('잘못된 입력 형식입니다')
+            }
             $.ajax({
                 type: "GET",
                 url: "/api/register",
@@ -145,6 +149,10 @@
         }
 
         function nickcheck() {
+            usernick = $('#usernick').val()
+            if(usernick == ''){
+                return alert('잘못된 입력 형식입니다')
+            }
             $.ajax({
                 type: "GET",
                 url: "/api/register",
@@ -191,11 +199,11 @@
             </div>
             <div class="input-group mb-3">
                 <span class="input-group-text">PW</span>
-                <input type="text" class="form-control" id="userpw">
+                <input type="password" class="form-control" id="userpw">
             </div>
             <div class="input-group mb-3">
                 <span class="input-group-text">PW check</span>
-                <input type="text" class="form-control" id="userpw2">
+                <input type="password" class="form-control" id="userpw2">
             </div>
             <div class="input-group mb-3">
                 <span class="input-group-text">Nickname</span>
