@@ -114,6 +114,10 @@
         }
 
         function idcheck() {
+            userid = $('#userid').val()
+            if(userid === '') {
+                return alert('잘못된 아이디 형식입니다.')
+            }
             $.ajax({
                 type: "POST",
                 url: "/api/idcheck",
@@ -130,6 +134,10 @@
         }
 
         function nickcheck() {
+            usernick = $('#usernick').val()
+            if(usernick === '') {
+                return alert('잘못된 닉네임 형식입니다.')
+            }
             $.ajax({
                 type: "POST",
                 url: "/api/nickcheck",

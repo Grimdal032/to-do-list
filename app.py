@@ -76,25 +76,26 @@ def todo_get():
 def todo_done():
     num_receive = request.form['num_give']
     db.lists.update_one({'num': num_receive}, {'$set': {'done': 1}})
-    return jsonify({'msg': '버킷 완료!'})
+    return jsonify({'msg': '할일 완료!'})
 
 @app.route("/todo_undone", methods=["POST"])
 def todo_undone():
     num_receive = request.form['num_give']
     db.lists.update_one({'num': num_receive}, {'$set': {'done': 0}})
-    return jsonify({'msg': '버킷 취소!'})
+    return jsonify({'msg': '완료 취소!'})
 
 @app.route("/todo_priority", methods=["POST"])
 def todo_priority():
     num_receive = request.form['num_give']
     db.lists.update_one({'num': num_receive}, {'$set': {'priority': 1}})
-    return jsonify({'msg': '버킷 완료!'})
+    return jsonify({'msg': '즐겨찾기 등록 완료!'})
+
 
 @app.route("/todo_nopriority", methods=["POST"])
 def todo_nopriority():
     num_receive = request.form['num_give']
     db.lists.update_one({'num': num_receive}, {'$set': {'priority': 0}})
-    return jsonify({'msg': '버킷 완료!'})
+    return jsonify({'msg': '즐겨찾기 취소 완료!'})
 
 @app.route("/todo_delete", methods=["POST"])
 def todo_delete():

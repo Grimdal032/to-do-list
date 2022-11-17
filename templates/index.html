@@ -171,11 +171,14 @@
             credentialCheck();
         });
 
+        // 비로그인 상태일 경우 - 로그인 버튼 출력
+        // 로그인 상태일 경우 - 로그아웃 버튼 출력
         function credentialCheck() {
             $('#header-right').empty()
             $('#greet').empty()
+            // def home 으로 부터 id 값을 받아온 것을 사용
             let id = '{{id}}'
-            if($.cookie('mytoken') && id) {
+            if($.cookie('mytoken') && id) { // 현재 쿠키와 id 값 일치 확인
                 let temp_html = `<button onclick="logout()" class="btn">로그아웃</button>`
                 let temp_html2 = `<p>{{nickname}} 님 안녕하세요 😊</p>`
                 $('#header-right').append(temp_html)
@@ -204,6 +207,7 @@
             let date = new Date();
             let day = date.getDate()
             let year = date.getFullYear()
+            // getMonth 는 0-11 사이를 받아오므로 +1을 해주어야한다.
             let month = date.getMonth()+1
             let list = $('#todo-input').val();
             let id = '{{id}}';
@@ -364,7 +368,7 @@
                 url: "/todo_priority",
                 data: {num_give: num},
                 success: function (response) {
-                    // alert(response["msg"])
+                    alert(response["msg"])
                     window.location.reload();
                 }
             });
@@ -376,7 +380,7 @@
                 url: "/todo_nopriority",
                 data: {num_give: num},
                 success: function (response) {
-                    // alert(response["msg"])
+                    alert(response["msg"])
                     window.location.reload();
                 }
             });
