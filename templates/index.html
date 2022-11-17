@@ -37,6 +37,8 @@
             padding: 10px;
             box-shadow: 0 0 5px 0 dodgerblue;
             border-radius: 5px;
+
+            margin-bottom: 30px;
         }
 
         .lists-day {
@@ -44,9 +46,9 @@
             margin-bottom: 10px;
         }
 
-        .lists-set > p:nth-of-type(2) {
-            margin-top: 30px;
-        }
+        /*.lists-set > p:nth-of-type(2) {*/
+        /*    margin-top: 30px;*/
+        /*}*/
 
         .list-input {
             box-shadow: 0 0 5px 0 dodgerblue;
@@ -242,11 +244,9 @@
                 success: function (response) {
                     let date = new Date();
                     let newDate = date.getDate();
-                    let newYear = date.getFullYear();
-                    let newMonth = date.getMonth() + 1;
                     let rows = response['lists'];
                     let id = '{{id}}' //토큰을 성공적으로 발급 받았을 때 로그인한 id값을 가져온다.
-                    let filterArray = [];
+                    let filterArray = []; //로그인 했을 때의 id값을 가진 정보들을 저장한다.
 
                     $('.lists-set').empty() //lists-set 상자 안을 비운다.
 
@@ -276,18 +276,16 @@
                         }
                     }
 
-                    let filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate)) //오늘 리스트를 가져온다
-                    let pri = filteredByDay.filter(x=> x.priority === 1)                          //오늘 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
-                    let noPri = filteredByDay.filter(x=> x.priority !== 1)                        //오늘 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
-                    let restOfDays = filterArray.filter(x=> Number(x.day) === Number(newDate-1))  //어제 리스트를 가져온다
-                    let restPri = restOfDays.filter(x=> x.priority === 1)                         //어제 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
-                    let restNoPri = restOfDays.filter(x=> x.priority !== 1)                       //어제 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
+                    let filteredByDay; //오늘 리스트를 가져온다
+                    let pri;           //오늘 리스트중 priority가 1인 값을 가진 정보들을 가져온다.
+                    let noPri;         //오늘 리스트중 priority가 0인 값을 가진 정보들을 가져온다.
 
-                    if(filteredByDay.length === 0) {
-                        showList(restOfDays, restPri, restNoPri, newDate-1);
-                    } else {
-                        showList(filteredByDay, pri, noPri, newDate);
-                        showList(restOfDays, restPri, restNoPri, newDate-1);
+                    for(let i = 0; i < newDate; i++) {
+                        filteredByDay = filterArray.filter(x=> Number(x.day) === Number(newDate - i)) //날짜에 따라 분류
+                        pri = filteredByDay.filter(x=> x.priority === 1)
+                        noPri = filteredByDay.filter(x=> x.priority !== 1)
+
+                        showList(filteredByDay, pri, noPri, newDate-i);
                     }
                 }
             });
@@ -297,7 +295,10 @@
             let date = new Date();
             let newMonth = date.getMonth();
             let newYear = date.getFullYear();
-            if(Number(filtered[0]['day']) === Number(day)) { //db에 저장된 날짜와 현재 날짜가 같을 때 + string으로 받는 값을 number로 바꿔준다.
+            if(filtered.length === 0) {
+                return null;
+            } else {
+                if(Number(filtered[0]['day']) === Number(day)) { //db에 저장된 날짜와 현재 날짜가 같을 때 + string으로 받는 값을 number로 바꿔준다.
                 let temp_html2 = `
                                     <p class="lists lists-day">${newYear}/${newMonth}/${day}</p>
                                     <div id="list${day}" class="lists">
@@ -364,6 +365,7 @@
                     }
                     $(`#list${day}`).append(temp_html) //오늘의 투두리스트중 priority가 0인값을 나중에 리스트한다.
                 }
+            }
             }
         }
 
